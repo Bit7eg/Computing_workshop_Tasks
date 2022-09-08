@@ -27,9 +27,15 @@ public class Task1 {
                 break;
             }
         }
-        lPair = XtoY.lowerEntry(rPair.getKey());
-        Double y = (x - lPair.getKey()) / (rPair.getKey() - lPair.getKey()) *
-                (rPair.getValue() - lPair.getValue()) + lPair.getValue();
+        Double y = null;
+        try {
+            lPair = XtoY.lowerEntry(rPair.getKey());
+            y = (x - lPair.getKey()) / (rPair.getKey() - lPair.getKey()) *
+                    (rPair.getValue() - lPair.getValue()) + lPair.getValue();
+        } catch (NullPointerException e){
+            System.out.printf("ERROR: Argument out of range");
+            return;
+        }
         System.out.printf("\nResult: %50.25e", y);
     }
     private static void secondSubtask() {
