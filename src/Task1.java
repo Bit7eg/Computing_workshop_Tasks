@@ -4,13 +4,13 @@ import java.io.PrintWriter;
 import java.util.*;
 
 public class Task1 {
-    public static PrintWriter outLines;
-    public static PrintWriter outPolynomial;
-    public static PrintWriter outError;
+    private static PrintWriter outLines;
+    private static PrintWriter outPolynomial;
+    private static PrintWriter outError;
+    private static Scanner inFile;
 
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
-        Scanner inFile;
 
         System.out.print("Enter filepath for...\n" +
                 "\tKnown pairs data: ");
@@ -101,6 +101,11 @@ public class Task1 {
             }
 
             System.out.print("\nDumping complete.\n");
+
+            inFile.close();
+            outLines.close();
+            outPolynomial.close();
+            outError.close();
         }, "DumpingThread");
         outputDumping.start();
 
@@ -120,9 +125,11 @@ public class Task1 {
             return;
         }
 
-        inFile.close();
-        outLines.close();
-        outPolynomial.close();
-        outError.close();
+        System.out.print("\nDo you want to open window with graphs?[yes/no] ");
+        String answer = in.next().toLowerCase();
+        if (answer.equals("yes") || answer.equals("y")) {
+            InterpolationGraphic window = new InterpolationGraphic();
+            window.show();
+        }
     }
 }

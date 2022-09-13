@@ -8,11 +8,11 @@ public class Interpolation implements Cloneable {
     private Double middleError = null;
     private Double rightError = null;
 
-    Interpolation() {
+    public Interpolation() {
         XAndDividedDifference = new HashMap<>();
     }
 
-    Interpolation(Integer pairsNumber) {
+    public Interpolation(Integer pairsNumber) {
         XAndDividedDifference = new HashMap<>(pairsNumber);
     }
 
