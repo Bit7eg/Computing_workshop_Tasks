@@ -6,8 +6,7 @@ import java.util.*;
 public class Task1 {
     public static PrintWriter outLines;
     public static PrintWriter outPolynomial;
-    public static HashMap<Double, Double> XAndDividedDifference;
-    public static TreeMap<Double, Double> XtoY = new TreeMap<>(Double::compareTo);
+    public static PrintWriter outError;
 
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
@@ -19,7 +18,7 @@ public class Task1 {
         try {
             inFile = new Scanner(new File(Path));
         } catch (FileNotFoundException exception) {
-            System.err.print("ERROR: File not found\n" +
+            System.err.print("ERROR: File not found.\n" +
                     "SYSTEM_MESSAGE: " + exception.getMessage());
             return;
         }
@@ -27,9 +26,9 @@ public class Task1 {
         System.out.print("\n\tLines function values: ");
         Path = in.nextLine();
         try {
-            outLines = new PrintWriter("lines.txt");
+            outLines = new PrintWriter(Path);
         } catch (FileNotFoundException exception) {
-            System.err.print("ERROR: File not found\n" +
+            System.err.print("ERROR: File not found.\n" +
                     "SYSTEM_MESSAGE: " + exception.getMessage());
             return;
         }
@@ -37,9 +36,19 @@ public class Task1 {
         System.out.print("\n\tPolynomial function values: ");
         Path = in.nextLine();
         try {
-            outPolynomial = new PrintWriter("polynomial.txt");
+            outPolynomial = new PrintWriter(Path);
         } catch (FileNotFoundException exception) {
-            System.err.print("ERROR: File not found\n" +
+            System.err.print("ERROR: File not found.\n" +
+                    "SYSTEM_MESSAGE: " + exception.getMessage());
+            return;
+        }
+
+        System.out.print("\n\tInterpolation error values: ");
+        Path = in.nextLine();
+        try {
+            outError = new PrintWriter(Path);
+        } catch (FileNotFoundException exception) {
+            System.err.print("ERROR: File not found.\n" +
                     "SYSTEM_MESSAGE: " + exception.getMessage());
             return;
         }
@@ -47,27 +56,48 @@ public class Task1 {
         System.out.print("\nInput data processing...\n");
 
         Integer N = inFile.nextInt();
-        XAndDividedDifference = new HashMap<>(N, 1.0f);
-        Double knownX;
+        if (N < 0) {
+            System.err.print("ERROR: Before listing known pairs, " +
+                    "index of the last pair must be indicated. " +
+                    "The index of the last pair must be at least 0.");
+            return;
+        }
+        Interpolation interpolationObj = new Interpolation(N + 1);
         for (Integer i = 0; i <= N; i++) {
-            knownX = inFile.nextDouble();
-            XtoY.put(knownX, inFile.nextDouble());
-            XAndDividedDifference.put(knownX, dividedDifference(XtoY));
+            try {
+                interpolationObj.putPair(inFile.nextDouble(), inFile.nextDouble());
+            } catch (InputMismatchException exception) {
+                System.err.print("ERROR: Not enough pairs.\n" +
+                        "SYSTEM_MESSAGE: " + exception.getMessage());
+                return;
+            }
         }
 
+        Interpolation interpolationCopy;
+        try {
+            interpolationCopy = interpolationObj.clone();
+        } catch (CloneNotSupportedException exception) {
+            System.err.print("ERROR: Cloneable not implemented.\n" +
+                    "SYSTEM_MESSAGE: " + exception.getMessage());
+            interpolationCopy = interpolationObj;
+        }
         Thread outputDumping = new Thread(()->{
             System.out.print("\nDumping functions data into output files...\n");
 
-            Double start = XtoY.firstKey(),
-                    end = XtoY.lastKey(),
+            Double start = interpolationObj.getLowerXBound(),
+                    end = interpolationObj.getUpperXBound(),
                     step = (start - end) / 10;
             start -= step;
             end += step;
             step /= 500;
-            for (Double i = start; i <= end; i+= step) {
-                outLines.printf("%f %f", i, lineFunctionY(XtoY, i));
-                outPolynomial.printf("%f %f", i,
-                        polynomialFunctionY(XAndDividedDifference, i));
+            for (Double x = start, value = 0.0, error = 0.0; x <= end; x+= step) {
+                outLines.printf("%f %f", x, interpolationObj.lineFunctionY(x));
+                value = interpolationObj.polynomialFunctionY(x);
+                error = interpolationObj.getError(x);
+                outPolynomial.printf("%f %f", x, value);
+                outError.printf("%f %f\n%f %f",
+                            x, value - error,
+                            x, value + error);
             }
 
             System.out.print("\nDumping complete.\n");
@@ -78,9 +108,9 @@ public class Task1 {
         Double x = in.nextDouble();
 
         System.out.printf("\n\nLine result: %f\n",
-                lineFunctionY(XtoY, x));
+                interpolationCopy.lineFunctionY(x));
         System.out.printf("Polynomial result: %f\n",
-                polynomialFunctionY(XAndDividedDifference, x));
+                interpolationCopy.polynomialFunctionY(x));
 
         try {
             outputDumping.join();
@@ -89,51 +119,10 @@ public class Task1 {
                     "SYSTEM_MESSAGE: " + exception.getMessage());
             return;
         }
-    }
-    private static Double dividedDifference(Map<Double, Double> values) {
-        Set<Double> args = values.keySet();
-        Double prod, sum = 0.0;
-        for (Double i: args) {
-            prod = 1.0;
-            for (Double j: args) {
-                if (!i.equals(j))
-                    prod *= i - j;
-            }
-            sum += values.get(i)/prod;
-        }
-        return sum;
-    }
-    private static Double lineFunctionY(TreeMap<Double, Double> values, Double x) {
-        Map.Entry<Double, Double> rPair = null,
-                lPair = null;
-        for (Map.Entry<Double, Double> pair:
-                values.entrySet()) {
-            if (x < pair.getKey()) {
-                rPair = pair;
-                break;
-            }
-        }
-        if (rPair == null)
-            rPair = values.lowerEntry(x);
-        lPair = values.lowerEntry(rPair.getKey());
-        if (lPair == null) {
-            lPair = rPair;
-            rPair = values.higherEntry(lPair.getKey());
-        }
-        return (x - lPair.getKey()) / (rPair.getKey() - lPair.getKey()) *
-                (rPair.getValue() - lPair.getValue()) + lPair.getValue();
-    }
-    private static Double polynomialFunctionY(Map<Double, Double> values, Double x) {
-        Set<Double> args = values.keySet();
-        Double prod, sum = 0.0;
-        for (Double i: args) {
-            prod = 1.0;
-            for (Double j: args) {
-                if (i.equals(j)) break;
-                prod *= x - j;
-            }
-            sum += values.get(i) * prod;
-        }
-        return sum;
+
+        inFile.close();
+        outLines.close();
+        outPolynomial.close();
+        outError.close();
     }
 }
