@@ -77,6 +77,19 @@ public class InterpolationGraphic {
 
         JButton button = new JButton("Draw");
         panel.add(button);
+
+	button.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			changeGraphicColor();
+		}
+	});
         return panel;
+    }
+
+    private void changeGraphicColor() {
+	    String name = nameTextField.getText();
+	    String color = colorTextField.getText();
+	    graphicPanel.setNameAndColor(name, color);
     }
 }

@@ -16,6 +16,15 @@ public class GraphicPanel extends JPanel {
 		drawGraphic(g);
 	}
 
+	public void setNameAndColor(String name, String color) {
+		try {
+			this.graphicColor = Color.decode(color);
+		} catch (Exception e) {
+			this.graphicColor = Color.RED;
+		}
+		repaint();
+	}
+
 	private void drawGrid(Graphics g) {
 		g.setColor(Color.LIGHT_GRAY);
 
