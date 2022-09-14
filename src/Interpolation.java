@@ -23,6 +23,12 @@ public class Interpolation implements Cloneable {
         leftError = middleError = rightError = null;
     }
 
+    public void clear() {
+        lastX = leftError = middleError = rightError = null;
+        XtoY.clear();
+        XAndDividedDifference.clear();
+    }
+
     public Double lineFunctionY(Double x) {
         Map.Entry<Double, Double> rPair = null,
                 lPair = null;
@@ -69,6 +75,12 @@ public class Interpolation implements Cloneable {
 
     public Double getLowerXBound() {
         return XtoY.firstKey();
+    }
+
+    public Double getLowerYBound() {
+        Double min = null;
+        //TODO: make lower and upper bounds
+        return min;
     }
 
     public Double getUpperXBound() {

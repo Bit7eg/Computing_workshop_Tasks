@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class InterpolationGraphic {
     private JFrame frame;
@@ -39,9 +41,11 @@ public class InterpolationGraphic {
         Box leftPanel = createLeftPanel();
         mainContainer.add(leftPanel, BorderLayout.WEST);
 
-	graphicPanel = new GraphicPanel();
-	graphicPanel.setBackground(Color.WHITE);
-	mainContainer.add(graphicPanel);
+	    graphicPanel = new GraphicPanel((x) -> {
+	        return 0.0;
+        });
+	    graphicPanel.setBackground(Color.WHITE);
+	    mainContainer.add(graphicPanel);
     }
 
     private JPanel createBottomPanel() {
@@ -79,17 +83,17 @@ public class InterpolationGraphic {
         panel.add(button);
 
 	button.addActionListener(new ActionListener() {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			changeGraphicColor();
-		}
-	});
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            changeGraphicColor();
+        }
+    });
         return panel;
     }
 
     private void changeGraphicColor() {
 	    String name = nameTextField.getText();
 	    String color = colorTextField.getText();
-	    graphicPanel.setNameAndColor(name, color);
+	    graphicPanel.setFunctionColor(color);
     }
 }
