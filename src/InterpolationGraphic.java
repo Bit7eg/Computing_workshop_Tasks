@@ -6,6 +6,7 @@ public class InterpolationGraphic {
     private JLabel statusLabel;
     private JTextField colorTextField;
     private JTextField nameTextField;
+    private GraphicPanel graphicPanel;
     private final Integer width = 600;
     private final Integer height = 300;
 
@@ -37,6 +38,10 @@ public class InterpolationGraphic {
 
         Box leftPanel = createLeftPanel();
         mainContainer.add(leftPanel, BorderLayout.WEST);
+
+	graphicPanel = new GraphicPanel();
+	graphicPanel.setBackground(Color.WHITE);
+	mainContainer.add(graphicPanel);
     }
 
     private JPanel createBottomPanel() {
