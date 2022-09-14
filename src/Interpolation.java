@@ -79,12 +79,18 @@ public class Interpolation implements Cloneable {
 
     public Double getLowerYBound() {
         Double min = null;
-        //TODO: make lower and upper bounds
+        //TODO: make lower bound
         return min;
     }
 
     public Double getUpperXBound() {
         return XtoY.lastKey();
+    }
+
+    public Double getUpperYBound() {
+	Double max = null;
+	//TODO: make upper bound
+	return max;
     }
 
     public Interpolation clone() throws CloneNotSupportedException {

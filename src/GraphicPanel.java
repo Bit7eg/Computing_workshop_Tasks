@@ -10,6 +10,8 @@ public class GraphicPanel extends JPanel {
 	private Color lineColor = Color.BLUE;
 	private Double minX = -1.0;
 	private Double maxX = 1.0;
+	private Double minY = -1.05;
+	private Double maxY = 1.05;
 	private Integer argumentsNumber = 2;
 	private Integer width;
 	private Integer height;
@@ -65,12 +67,14 @@ public class GraphicPanel extends JPanel {
 	public void setMinX(Double minX) {
 		this.minX = minX;
 		interpolationReload();
+		//TODO: make y border count
  		repaint();
 	}
 
 	public void setMaxX(Double maxX) {
 		this.maxX = maxX;
 		interpolationReload();
+		//TODO: make y border count
 		repaint();
 	}
 
@@ -110,21 +114,21 @@ public class GraphicPanel extends JPanel {
 
 	private void drawAxis(Graphics g) {
 		g.setColor(Color.BLACK);
-		Double yAxisCoefficient = (maxX)/(maxX - minX);
-		if (yAxisCoefficient < 1 && yAxisCoefficient >0)
-			g.drawLine(width/2, 0, width/2, height);
+		Double yAxisCoefficient = -minX/(maxX - minX), xAxisCoefficient = -minY/(maxY - minY);
+		if (yAxisCoefficient < 1 && yAxisCoefficient > 0)
+			g.drawLine(width * yAxisCoefficient, 0, width * yAxisCoefficient, height);
 
-		g.drawLine(0, height/2, width, height/2);
+		if (xAxisCoefficient < 1 && xAxisCoefficient > 0)
+			g.drawLine(0, height * xAxisCoefficient, width, height * xAxisCoefficient);
 	}
 
 	private void drawGraphic(Graphics g) {
 		g.setColor(functionColor);
 
-		for(int x = 0; x < width; x++) {
-			int realX = x - width/2;
-			double rad = realX/30.0;
-			double func = Math.sin(rad);
-			int y = height + (int)(func * 90);
+		for(Integer x = 0; x < width; x++) {
+			Double realX = x - width * (-minX)/(maxX - minX);
+			Double func = this.function.apply(realX);
+			Integer y = func + height * (-minY)/(maxY - minY);
 
 			g.drawOval(x, y, 2, 2);
 		}
