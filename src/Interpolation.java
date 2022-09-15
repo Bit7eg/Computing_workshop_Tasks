@@ -23,6 +23,18 @@ public class Interpolation implements Cloneable {
         leftError = middleError = rightError = null;
     }
 
+    public Integer getPairsCount() {
+        return XtoY.size();
+    }
+
+    public Double ceilingNode(Double x) {
+        return XtoY.ceilingKey(x);
+    }
+
+    public Double floorNode(Double x) {
+        return XtoY.floorKey(x);
+    }
+
     public void clear() {
         lastX = leftError = middleError = rightError = null;
         XtoY.clear();
@@ -78,8 +90,12 @@ public class Interpolation implements Cloneable {
     }
 
     public Double getLowerYBound() {
-        Double min = null;
-        //TODO: make lower bound
+        Double min = XtoY.get(XtoY.firstKey());
+
+        for (Double i: XtoY.values()) {
+            if (i < min) min = i;
+        }
+
         return min;
     }
 
@@ -88,8 +104,12 @@ public class Interpolation implements Cloneable {
     }
 
     public Double getUpperYBound() {
-	Double max = null;
-	//TODO: make upper bound
+	Double max = XtoY.get(XtoY.firstKey());
+
+    for (Double i: XtoY.values()) {
+        if (i > max) max = i;
+    }
+
 	return max;
     }
 

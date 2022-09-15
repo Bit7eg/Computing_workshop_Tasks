@@ -8,6 +8,7 @@ public class GraphicPanel extends JPanel {
 	private Color functionColor = Color.RED;
 	private Color polynomialColor = Color.GREEN;
 	private Color lineColor = Color.BLUE;
+	private Color nodeColor = Color.YELLOW;
 	private Double minX = -1.0;
 	private Double maxX = 1.0;
 	private Double minY = -1.05;
@@ -19,12 +20,14 @@ public class GraphicPanel extends JPanel {
 	public GraphicPanel() {
 		super();
 		this.interpolationObj = new Interpolation(this.argumentsNumber);
+		interpolationReload();
 	}
 
 	public GraphicPanel(Function<Double, Double> func) {
 		super();
 		this.function = func;
 		this.interpolationObj = new Interpolation(this.argumentsNumber);
+		interpolationReload();
 	}
 
 	public void paint(Graphics g) {
@@ -37,59 +40,105 @@ public class GraphicPanel extends JPanel {
 		drawGraphic(g);
 	}
 
-	public void setFunctionColor(String color) {
+	public Color setFunctionColor(String color) {
 		try {
 			this.functionColor = Color.decode(color);
-		} catch (Exception e) {
+		} catch (NumberFormatException exception) {
 			this.functionColor = Color.RED;
 		}
 		repaint();
+		return this.functionColor;
 	}
 
-	public void setPolynomialColor(String color) {
+	public Color setPolynomialColor(String color) {
 		try {
 			this.polynomialColor = Color.decode(color);
-		} catch (Exception e) {
+		} catch (NumberFormatException exception) {
 			this.polynomialColor = Color.GREEN;
 		}
 		repaint();
+		return this.polynomialColor;
 	}
 
-	public void setLineFuncColor(String color) {
+	public Color setLineFuncColor(String color) {
 		try {
 			this.lineColor = Color.decode(color);
-		} catch (Exception e) {
+		} catch (NumberFormatException exception) {
 			this.lineColor = Color.BLUE;
 		}
 		repaint();
+		return this.lineColor;
 	}
 
-	public void setMinX(Double minX) {
-		this.minX = minX;
-		interpolationReload();
-		//TODO: make y border count
- 		repaint();
-	}
-
-	public void setMaxX(Double maxX) {
-		this.maxX = maxX;
-		interpolationReload();
-		//TODO: make y border count
+	public Color setNodeColor(String color) {
+		try	{
+			this.nodeColor = Color.decode(color);
+		} catch (NumberFormatException exception) {
+			this.nodeColor = Color.ORANGE;
+		}
 		repaint();
+		return this.nodeColor;
 	}
 
-	public void setArgumentsNumber(Integer number) {
-		this.argumentsNumber = number;
+	public Double setMinX(String minX) {
+		try	{
+			this.minX = Double.parseDouble(minX);
+		} catch (NumberFormatException exception) {
+			this.minX = -1.0;
+		}
+		if (this.minX > this.maxX) this.minX = this.maxX - 2.0;
 		interpolationReload();
 		repaint();
+		return this.minX;
+	}
+
+	public Double setMaxX(String maxX) {
+		try	{
+			this.maxX = Double.parseDouble(maxX);
+		} catch (NumberFormatException exception) {
+			this.maxX = 1.0;
+		}
+		if (this.minX > this.maxX) this.maxX = this.minX + 2.0;
+		interpolationReload();
+		repaint();
+		return this.maxX;
+	}
+
+	public Integer setArgumentsNumber(String number) {
+		try {
+			this.argumentsNumber = Integer.parseInt(number);
+		} catch (NumberFormatException exception) {
+			this.argumentsNumber = 2;
+		}
+		if (this.argumentsNumber < 2) this.argumentsNumber = 2;
+		interpolationReload();
+		repaint();
+		return this.argumentsNumber;
+	}
+
+	private void yBoundsCalc() {
+		//TODO: make y bounds calculation (calculate poly twice?)
+		this.minY = interpolationObj.getLowerYBound();
+		this.maxY = interpolationObj.getUpperYBound();
+		if (maxY < 0) {
+			this.minY *= 1.05;
+			this.maxY *= 0.95;
+		} else if (this.minY > 0) {
+			this.minY *= 0.95;
+			this.maxY *= 1.05;
+		} else {
+			this.minY *= 1.05;
+			this.maxY *= 1.05;
+		}
 	}
 
 	private void interpolationReload() {
-		Double step = (this.maxX - this.minX)/this.argumentsNumber;
+		Double step = (this.maxX - this.minX)/(this.argumentsNumber - 1);
 		this.interpolationObj.clear();
 		for (Double x = this.minX; x <= this.maxX; x += step) {
 			this.interpolationObj.putPair(x, function.apply(x));
 		}
+		yBoundsCalc();
 	}
 
 	private void drawGrid(Graphics g) {
@@ -114,23 +163,58 @@ public class GraphicPanel extends JPanel {
 
 	private void drawAxis(Graphics g) {
 		g.setColor(Color.BLACK);
-		Double yAxisCoefficient = -minX/(maxX - minX), xAxisCoefficient = -minY/(maxY - minY);
+		Double yAxisCoefficient = minX/(minX - maxX), xAxisCoefficient = minY/(minY - maxY);
 		if (yAxisCoefficient < 1 && yAxisCoefficient > 0)
-			g.drawLine(width * yAxisCoefficient, 0, width * yAxisCoefficient, height);
+			g.drawLine((int)Math.round(width * yAxisCoefficient), 0,
+					(int)Math.round(width * yAxisCoefficient), height);
 
 		if (xAxisCoefficient < 1 && xAxisCoefficient > 0)
-			g.drawLine(0, height * xAxisCoefficient, width, height * xAxisCoefficient);
+			g.drawLine(0, (int)Math.round(height * xAxisCoefficient),
+					width, (int)Math.round(height * xAxisCoefficient));
 	}
 
 	private void drawGraphic(Graphics g) {
-		g.setColor(functionColor);
+		Double xCoefficient = width * minX/(minX - maxX),
+				yCoefficient = height * minY/(minY - maxY);
+
+		g.setColor(nodeColor);
+		g.drawOval(0, (int)Math.round(
+				this.interpolationObj.lineFunctionY(
+						xCoefficient
+				) + yCoefficient
+		), 10, 10);
 
 		for(Integer x = 0; x < width; x++) {
-			Double realX = x - width * (-minX)/(maxX - minX);
-			Double func = this.function.apply(realX);
-			Integer y = func + height * (-minY)/(maxY - minY);
+			Double realX = x - xCoefficient;
 
-			g.drawOval(x, y, 2, 2);
+			Double func = this.function.apply(realX);
+			Double poly = this.interpolationObj.polynomialFunctionY(realX);
+			Double line = this.interpolationObj.lineFunctionY(realX);
+
+			Integer yFunc = (int)Math.round(func + yCoefficient);
+			Integer yPoly = (int)Math.round(poly + yCoefficient);
+			Integer yLine = (int)Math.round(line + yCoefficient);
+
+			g.setColor(functionColor);
+			g.drawOval(x, yFunc, 1, 1);
+
+			g.setColor(polynomialColor);
+			g.drawOval(x, yPoly, 1, 1);
+
+			g.setColor(lineColor);
+			g.drawOval(x, yLine, 1, 1);
+
+			if (yPoly.equals(yLine) && this.interpolationObj.getPairsCount() > 2) {
+				g.setColor(nodeColor);
+				g.drawOval(x, yLine, 10, 10);
+			}
 		}
+
+		g.setColor(nodeColor);
+		g.drawOval(width - 1, (int)Math.round(
+				this.interpolationObj.lineFunctionY(
+						width - 1 - xCoefficient
+				) + yCoefficient
+		), 10, 10);
 	}
 }

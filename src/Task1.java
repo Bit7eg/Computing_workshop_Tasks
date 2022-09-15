@@ -10,6 +10,15 @@ public class Task1 {
     private static Scanner inFile;
 
     public static void main(String[] args) {
+        graphicApp();
+    }
+
+    private static void graphicApp() {
+        InterpolationGraphic window = new InterpolationGraphic();
+        window.show();
+    }
+
+    private static void consoleApp() {
         Scanner in = new Scanner(System.in);
 
         System.out.print("Enter filepath for...\n" +
@@ -96,8 +105,8 @@ public class Task1 {
                 error = interpolationObj.getError(x);
                 outPolynomial.printf("%f %f", x, value);
                 outError.printf("%f %f\n%f %f",
-                            x, value - error,
-                            x, value + error);
+                        x, value - error,
+                        x, value + error);
             }
 
             System.out.print("\nDumping complete.\n");
@@ -123,13 +132,6 @@ public class Task1 {
             System.err.print("ERROR: " + outputDumping.getName() + " thread interrupted\n" +
                     "SYSTEM_MESSAGE: " + exception.getMessage());
             return;
-        }
-
-        System.out.print("\nDo you want to open window with graphs?[yes/no] ");
-        String answer = in.next().toLowerCase();
-        if (answer.equals("yes") || answer.equals("y")) {
-            InterpolationGraphic window = new InterpolationGraphic();
-            window.show();
         }
     }
 }
