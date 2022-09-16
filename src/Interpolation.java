@@ -64,14 +64,10 @@ public class Interpolation implements Cloneable {
 
     public Double polynomialFunctionY(Double x) {
         Set<Double> args = XAndDividedDifference.keySet();
-        Double prod, sum = 0.0;
+        Double prod = 1.0, sum = 0.0;
         for (Double i: args) {
-            prod = 1.0;
-            for (Double j: args) {
-                if (i.equals(j)) break;
-                prod *= x - j;
-            }
             sum += XAndDividedDifference.get(i) * prod;
+            prod *= x - i;
         }
         return sum;
     }
@@ -104,13 +100,13 @@ public class Interpolation implements Cloneable {
     }
 
     public Double getUpperYBound() {
-	Double max = XtoY.get(XtoY.firstKey());
+        Double max = XtoY.get(XtoY.firstKey());
 
-    for (Double i: XtoY.values()) {
-        if (i > max) max = i;
-    }
+        for (Double i: XtoY.values()) {
+            if (i > max) max = i;
+        }
 
-	return max;
+        return max;
     }
 
     public Interpolation clone() throws CloneNotSupportedException {

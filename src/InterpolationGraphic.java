@@ -48,7 +48,7 @@ public class InterpolationGraphic {
 
 	    graphicPanel = new GraphicPanel((x) -> {
 	        double lx = x;
-            return lx * lx * lx - 1.0;
+            return lx * lx * lx;
         });
 	    graphicPanel.setBackground(Color.WHITE);
 	    mainContainer.add(graphicPanel);

@@ -21,6 +21,7 @@ public class GraphicPanel extends JPanel {
 		super();
 		this.interpolationObj = new Interpolation(this.argumentsNumber);
 		interpolationReload();
+		this.setLayout(null);
 	}
 
 	public GraphicPanel(Function<Double, Double> func) {
@@ -28,12 +29,15 @@ public class GraphicPanel extends JPanel {
 		this.function = func;
 		this.interpolationObj = new Interpolation(this.argumentsNumber);
 		interpolationReload();
+		this.setLayout(null);
 	}
 
 	public void paint(Graphics g) {
 		super.paint(g);
 		width = getWidth();
 		height = getHeight();
+
+		removeAll();
 
 		drawGrid(g);
 		drawAxis(g);
@@ -143,21 +147,47 @@ public class GraphicPanel extends JPanel {
 
 	private void drawGrid(Graphics g) {
 		g.setColor(Color.LIGHT_GRAY);
+		Double yAxisCoefficient = minX/(minX - maxX), xAxisCoefficient = minY/(minY - maxY),
+				xCoefficient = (maxX - minX)/width, yCoefficient = (maxY - minY)/height;
 
 		for(int x = width/2; x < width; x += 30) {
 			g.drawLine(x, 0, x, height);
+
+			JLabel coords = new JLabel(Double.toString(x * xCoefficient + minX));
+			if (xAxisCoefficient >= 1) coords.setBounds(x, height - 10, 25, 10);
+			else if (xAxisCoefficient <= 0) coords.setBounds(x, 1, 25, 10);
+			else coords.setBounds(x, (int)Math.round(height * xAxisCoefficient), 25, 10);
+			this.add(coords);
 		}
 
-		for(int x = width/2; x > 0; x -= 30) {
+		for(int x = width/2 - 30; x > 0; x -= 30) {
 			g.drawLine(x, 0, x, height);
+
+			JLabel coords = new JLabel(Double.toString(x * xCoefficient + minX));
+			if (xAxisCoefficient >= 1) coords.setBounds(x, height - 10, 25, 10);
+			else if (xAxisCoefficient <= 0) coords.setBounds(x, 1, 25, 10);
+			else coords.setBounds(x, (int)Math.round(height * xAxisCoefficient), 25, 10);
+			this.add(coords);
 		}
 
 		for(int y = height/2; y < height; y += 30) {
 			g.drawLine(0, y, width, y);
+
+			JLabel coords = new JLabel(Double.toString(-(y * yCoefficient + minY)));
+			if (yAxisCoefficient >= 1) coords.setBounds(width - 25, y, 25, 10);
+			else if (yAxisCoefficient <= 0) coords.setBounds(1, y, 25, 10);
+			else coords.setBounds((int)Math.round(width * yAxisCoefficient), y, 25, 10);
+			this.add(coords);
 		}
 
-		for(int y = height/2; y > 0; y -= 30) {
+		for(int y = height/2 - 30; y > 0; y -= 30) {
 			g.drawLine(0, y, width, y);
+
+			JLabel coords = new JLabel(Double.toString(-(y * yCoefficient + minY)));
+			if (yAxisCoefficient >= 1) coords.setBounds(width - 25, y, 25, 10);
+			else if (yAxisCoefficient <= 0) coords.setBounds(1, y, 25, 10);
+			else coords.setBounds((int)Math.round(width * yAxisCoefficient), y, 25, 10);
+			this.add(coords);
 		}
 	}
 
@@ -174,26 +204,24 @@ public class GraphicPanel extends JPanel {
 	}
 
 	private void drawGraphic(Graphics g) {
-		Double xCoefficient = width * minX/(minX - maxX),
-				yCoefficient = height * minY/(minY - maxY);
+		Double xCoefficient = (maxX - minX)/width,
+				yCoefficient = height/(maxY - minY);
 
 		g.setColor(nodeColor);
 		g.drawOval(0, (int)Math.round(
-				this.interpolationObj.lineFunctionY(
-						xCoefficient
-				) + yCoefficient
+				(this.interpolationObj.lineFunctionY(minX) - minY) * yCoefficient
 		), 10, 10);
 
 		for(Integer x = 0; x < width; x++) {
-			Double realX = x - xCoefficient;
+			Double realX = x * xCoefficient + minX;
 
-			Double func = this.function.apply(realX);
-			Double poly = this.interpolationObj.polynomialFunctionY(realX);
-			Double line = this.interpolationObj.lineFunctionY(realX);
+			Double func = this.function.apply(realX) - minY;
+			Double poly = this.interpolationObj.polynomialFunctionY(realX) - minY;
+			Double line = this.interpolationObj.lineFunctionY(realX) - minY;
 
-			Integer yFunc = (int)Math.round(func + yCoefficient);
-			Integer yPoly = (int)Math.round(poly + yCoefficient);
-			Integer yLine = (int)Math.round(line + yCoefficient);
+			Integer yFunc = (int)Math.round(func * yCoefficient);
+			Integer yPoly = (int)Math.round(poly * yCoefficient);
+			Integer yLine = (int)Math.round(line * yCoefficient);
 
 			g.setColor(functionColor);
 			g.drawOval(x, yFunc, 1, 1);
@@ -204,7 +232,9 @@ public class GraphicPanel extends JPanel {
 			g.setColor(lineColor);
 			g.drawOval(x, yLine, 1, 1);
 
-			if (yPoly.equals(yLine) && this.interpolationObj.getPairsCount() > 2) {
+
+
+			if (Math.abs(yPoly - yLine) <= 1 && this.interpolationObj.getPairsCount() > 2) {
 				g.setColor(nodeColor);
 				g.drawOval(x, yLine, 10, 10);
 			}
@@ -212,9 +242,7 @@ public class GraphicPanel extends JPanel {
 
 		g.setColor(nodeColor);
 		g.drawOval(width - 1, (int)Math.round(
-				this.interpolationObj.lineFunctionY(
-						width - 1 - xCoefficient
-				) + yCoefficient
+				(this.interpolationObj.lineFunctionY(maxX) - minY) * yCoefficient
 		), 10, 10);
 	}
 }
