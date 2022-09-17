@@ -32,12 +32,16 @@ public class GraphicPanel extends JPanel {
 		this.setLayout(null);
 	}
 
+	public void updateGraphic() {
+		removeAll();
+		repaint();
+		revalidate();
+	}
+
 	public void paint(Graphics g) {
 		super.paint(g);
 		width = getWidth();
 		height = getHeight();
-
-		removeAll();
 
 		drawGrid(g);
 		drawAxis(g);
@@ -50,7 +54,7 @@ public class GraphicPanel extends JPanel {
 		} catch (NumberFormatException exception) {
 			this.functionColor = Color.RED;
 		}
-		repaint();
+		updateGraphic();
 		return this.functionColor;
 	}
 
@@ -60,7 +64,7 @@ public class GraphicPanel extends JPanel {
 		} catch (NumberFormatException exception) {
 			this.polynomialColor = Color.GREEN;
 		}
-		repaint();
+		updateGraphic();
 		return this.polynomialColor;
 	}
 
@@ -70,7 +74,7 @@ public class GraphicPanel extends JPanel {
 		} catch (NumberFormatException exception) {
 			this.lineColor = Color.BLUE;
 		}
-		repaint();
+		updateGraphic();
 		return this.lineColor;
 	}
 
@@ -80,7 +84,7 @@ public class GraphicPanel extends JPanel {
 		} catch (NumberFormatException exception) {
 			this.nodeColor = Color.ORANGE;
 		}
-		repaint();
+		updateGraphic();
 		return this.nodeColor;
 	}
 
@@ -92,7 +96,7 @@ public class GraphicPanel extends JPanel {
 		}
 		if (this.minX > this.maxX) this.minX = this.maxX - 2.0;
 		interpolationReload();
-		repaint();
+		updateGraphic();
 		return this.minX;
 	}
 
@@ -104,7 +108,7 @@ public class GraphicPanel extends JPanel {
 		}
 		if (this.minX > this.maxX) this.maxX = this.minX + 2.0;
 		interpolationReload();
-		repaint();
+		updateGraphic();
 		return this.maxX;
 	}
 
@@ -116,7 +120,7 @@ public class GraphicPanel extends JPanel {
 		}
 		if (this.argumentsNumber < 2) this.argumentsNumber = 2;
 		interpolationReload();
-		repaint();
+		updateGraphic();
 		return this.argumentsNumber;
 	}
 
@@ -150,13 +154,20 @@ public class GraphicPanel extends JPanel {
 		Double yAxisCoefficient = minX/(minX - maxX), xAxisCoefficient = minY/(minY - maxY),
 				xCoefficient = (maxX - minX)/width, yCoefficient = (maxY - minY)/height;
 
+		removeAll();
+		repaint();
+		revalidate();
+
 		for(int x = width/2; x < width; x += 30) {
 			g.drawLine(x, 0, x, height);
 
 			JLabel coords = new JLabel(Double.toString(x * xCoefficient + minX));
 			if (xAxisCoefficient >= 1) coords.setBounds(x, height - 10, 25, 10);
 			else if (xAxisCoefficient <= 0) coords.setBounds(x, 1, 25, 10);
-			else coords.setBounds(x, (int)Math.round(height * xAxisCoefficient), 25, 10);
+			else if (xAxisCoefficient >= 0.5) coords.setBounds(x,
+					(int)Math.round(height * xAxisCoefficient) - 10, 25, 10);
+			else coords.setBounds(x,
+						(int)Math.round(height * xAxisCoefficient), 25, 10);
 			this.add(coords);
 		}
 
@@ -166,6 +177,8 @@ public class GraphicPanel extends JPanel {
 			JLabel coords = new JLabel(Double.toString(x * xCoefficient + minX));
 			if (xAxisCoefficient >= 1) coords.setBounds(x, height - 10, 25, 10);
 			else if (xAxisCoefficient <= 0) coords.setBounds(x, 1, 25, 10);
+			else if (xAxisCoefficient >= 0.5) coords.setBounds(
+					x, (int)Math.round(height * xAxisCoefficient) - 10, 25, 10);
 			else coords.setBounds(x, (int)Math.round(height * xAxisCoefficient), 25, 10);
 			this.add(coords);
 		}
@@ -176,6 +189,8 @@ public class GraphicPanel extends JPanel {
 			JLabel coords = new JLabel(Double.toString(-(y * yCoefficient + minY)));
 			if (yAxisCoefficient >= 1) coords.setBounds(width - 25, y, 25, 10);
 			else if (yAxisCoefficient <= 0) coords.setBounds(1, y, 25, 10);
+			else if (yAxisCoefficient >= 0.5) coords.setBounds(
+					(int)Math.round(width * yAxisCoefficient) - 25, y, 25, 10);
 			else coords.setBounds((int)Math.round(width * yAxisCoefficient), y, 25, 10);
 			this.add(coords);
 		}
@@ -186,6 +201,8 @@ public class GraphicPanel extends JPanel {
 			JLabel coords = new JLabel(Double.toString(-(y * yCoefficient + minY)));
 			if (yAxisCoefficient >= 1) coords.setBounds(width - 25, y, 25, 10);
 			else if (yAxisCoefficient <= 0) coords.setBounds(1, y, 25, 10);
+			else if (yAxisCoefficient >= 0.5) coords.setBounds(
+					(int)Math.round(width * yAxisCoefficient) - 25, y, 25, 10);
 			else coords.setBounds((int)Math.round(width * yAxisCoefficient), y, 25, 10);
 			this.add(coords);
 		}
@@ -215,13 +232,15 @@ public class GraphicPanel extends JPanel {
 		for(Integer x = 0; x < width; x++) {
 			Double realX = x * xCoefficient + minX;
 
-			Double func = this.function.apply(realX) - minY;
-			Double poly = this.interpolationObj.polynomialFunctionY(realX) - minY;
-			Double line = this.interpolationObj.lineFunctionY(realX) - minY;
+			Double func = -this.function.apply(realX) - minY;
+			Double poly = -this.interpolationObj.polynomialFunctionY(realX) - minY;
+			Double line = -this.interpolationObj.lineFunctionY(realX) - minY;
 
 			Integer yFunc = (int)Math.round(func * yCoefficient);
 			Integer yPoly = (int)Math.round(poly * yCoefficient);
 			Integer yLine = (int)Math.round(line * yCoefficient);
+
+			//TODO: Rewrite drawing. It should be cycle hear so that there are no breaks.
 
 			g.setColor(functionColor);
 			g.drawOval(x, yFunc, 1, 1);

@@ -1,9 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
+import java.awt.event.*;
 
 public class InterpolationGraphic {
     private JFrame frame;
@@ -48,7 +45,7 @@ public class InterpolationGraphic {
 
 	    graphicPanel = new GraphicPanel((x) -> {
 	        double lx = x;
-            return lx * lx * lx;
+            return Math.sin(lx);
         });
 	    graphicPanel.setBackground(Color.WHITE);
 	    mainContainer.add(graphicPanel);
@@ -75,13 +72,20 @@ public class InterpolationGraphic {
 
         minXTextField = new JTextField("-1.0");
         minXTextField.setMaximumSize(new Dimension(300, 30));
-        minXTextField.addFocusListener(new FocusListener() {
-            @Override
-            public void focusGained(FocusEvent e) {}
-
+        minXTextField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
+                super.focusLost(e);
                 minXTextField.setText(graphicPanel.setMinX(minXTextField.getText()).toString());
+            }
+        });
+        minXTextField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                super.keyTyped(e);
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    minXTextField.setText(graphicPanel.setMinX(minXTextField.getText()).toString());
+                }
             }
         });
         panel.add(minXTextField);
@@ -90,13 +94,20 @@ public class InterpolationGraphic {
 
         maxXTextField = new JTextField("1.0");
         maxXTextField.setMaximumSize(new Dimension(300, 30));
-        maxXTextField.addFocusListener(new FocusListener() {
-            @Override
-            public void focusGained(FocusEvent e) {}
-
+        maxXTextField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
+                super.focusLost(e);
                 maxXTextField.setText(graphicPanel.setMaxX(maxXTextField.getText()).toString());
+            }
+        });
+        maxXTextField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                super.keyTyped(e);
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    maxXTextField.setText(graphicPanel.setMaxX(maxXTextField.getText()).toString());
+                }
             }
         });
         panel.add(maxXTextField);
@@ -105,15 +116,24 @@ public class InterpolationGraphic {
 
         nodeNumberTextField = new JTextField("2");
         nodeNumberTextField.setMaximumSize(new Dimension(300, 30));
-        nodeNumberTextField.addFocusListener(new FocusListener() {
-            @Override
-            public void focusGained(FocusEvent e) {}
-
+        nodeNumberTextField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
+                super.focusLost(e);
                 nodeNumberTextField.setText(
                         graphicPanel.setArgumentsNumber(nodeNumberTextField.getText()).toString()
                 );
+            }
+        });
+        nodeNumberTextField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                super.keyTyped(e);
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    nodeNumberTextField.setText(
+                            graphicPanel.setArgumentsNumber(nodeNumberTextField.getText()).toString()
+                    );
+                }
             }
         });
         panel.add(nodeNumberTextField);
@@ -122,15 +142,24 @@ public class InterpolationGraphic {
 
         functionColorTextField = new JTextField("#FF0000");
         functionColorTextField.setMaximumSize(new Dimension(300, 30));
-        functionColorTextField.addFocusListener(new FocusListener() {
-            @Override
-            public void focusGained(FocusEvent e) {}
-
+        functionColorTextField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
+                super.focusLost(e);
                 functionColorTextField.setText(
                         graphicPanel.setFunctionColor(functionColorTextField.getText()).toString()
                 );
+            }
+        });
+        functionColorTextField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                super.keyTyped(e);
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    functionColorTextField.setText(
+                            graphicPanel.setFunctionColor(functionColorTextField.getText()).toString()
+                    );
+                }
             }
         });
         panel.add(functionColorTextField);
@@ -139,15 +168,24 @@ public class InterpolationGraphic {
 
         polyColorTextField = new JTextField("#00FF00");
         polyColorTextField.setMaximumSize(new Dimension(300, 30));
-        polyColorTextField.addFocusListener(new FocusListener() {
-            @Override
-            public void focusGained(FocusEvent e) {}
-
+        polyColorTextField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
+                super.focusLost(e);
                 polyColorTextField.setText(
                         graphicPanel.setPolynomialColor(polyColorTextField.getText()).toString()
                 );
+            }
+        });
+        polyColorTextField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                super.keyTyped(e);
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    polyColorTextField.setText(
+                            graphicPanel.setPolynomialColor(polyColorTextField.getText()).toString()
+                    );
+                }
             }
         });
         panel.add(polyColorTextField);
@@ -156,15 +194,24 @@ public class InterpolationGraphic {
 
         lineColorTextField = new JTextField("#0000FF");
         lineColorTextField.setMaximumSize(new Dimension(300, 30));
-        lineColorTextField.addFocusListener(new FocusListener() {
-            @Override
-            public void focusGained(FocusEvent e) {}
-
+        lineColorTextField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
+                super.focusLost(e);
                 lineColorTextField.setText(
                         graphicPanel.setLineFuncColor(lineColorTextField.getText()).toString()
                 );
+            }
+        });
+        lineColorTextField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                super.keyTyped(e);
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    lineColorTextField.setText(
+                            graphicPanel.setLineFuncColor(lineColorTextField.getText()).toString()
+                    );
+                }
             }
         });
         panel.add(lineColorTextField);
@@ -173,20 +220,27 @@ public class InterpolationGraphic {
 
         nodeColorTextField = new JTextField("#FF00FF");
         nodeColorTextField.setMaximumSize(new Dimension(300, 30));
-        nodeColorTextField.addFocusListener(new FocusListener() {
-            @Override
-            public void focusGained(FocusEvent e) {}
-
+        nodeColorTextField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
+                super.focusLost(e);
                 nodeColorTextField.setText(
                         graphicPanel.setNodeColor(nodeColorTextField.getText()).toString()
                 );
             }
         });
+        nodeColorTextField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                super.keyTyped(e);
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    nodeColorTextField.setText(
+                            graphicPanel.setNodeColor(nodeColorTextField.getText()).toString()
+                    );
+                }
+            }
+        });
         panel.add(nodeColorTextField);
-
-        //panel.add(Box.createVerticalGlue());
 
         return panel;
     }
