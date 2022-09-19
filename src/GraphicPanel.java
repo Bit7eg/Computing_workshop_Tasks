@@ -222,14 +222,17 @@ public class GraphicPanel extends JPanel {
 
 	private void drawGraphic(Graphics g) {
 		Double xCoefficient = (maxX - minX)/width,
-				yCoefficient = height/(maxY - minY);
+				yCoefficient = height/(maxY - minY),
+				lastRealX = minX;
+
+		Integer lastLineY, lastPolyY, lastFuncY;
+		lastPolyY = lastFuncY = lastLineY =
+				(int)Math.round((-this.interpolationObj.lineFunctionY(minX) - minY) * yCoefficient);
 
 		g.setColor(nodeColor);
-		g.drawOval(0, (int)Math.round(
-				(this.interpolationObj.lineFunctionY(minX) - minY) * yCoefficient
-		), 10, 10);
+		g.drawOval(0, lastFuncY, 5, 5);
 
-		for(Integer x = 0; x < width; x++) {
+		for(Integer x = 1; x < width; x++) {
 			Double realX = x * xCoefficient + minX;
 
 			Double func = -this.function.apply(realX) - minY;
@@ -240,28 +243,29 @@ public class GraphicPanel extends JPanel {
 			Integer yPoly = (int)Math.round(poly * yCoefficient);
 			Integer yLine = (int)Math.round(line * yCoefficient);
 
-			//TODO: Rewrite drawing. It should be cycle hear so that there are no breaks.
-
 			g.setColor(functionColor);
-			g.drawOval(x, yFunc, 1, 1);
+			g.drawLine(x-1, lastFuncY, x, yFunc);
 
 			g.setColor(polynomialColor);
-			g.drawOval(x, yPoly, 1, 1);
+			g.drawLine(x-1, lastPolyY, x, yPoly);
 
 			g.setColor(lineColor);
-			g.drawOval(x, yLine, 1, 1);
+			g.drawLine(x-1, lastLineY, x, yLine);
 
-
-
-			if (Math.abs(yPoly - yLine) <= 1 && this.interpolationObj.getPairsCount() > 2) {
+			if ((lastLineY - lastPolyY) * (yLine - yPoly) < 0) {
 				g.setColor(nodeColor);
-				g.drawOval(x, yLine, 10, 10);
+				//TODO: make calculation of the intersection !!! HEAR NEED lastRealX VARIABLE !!!
+				g.drawOval(x, yLine, 5, 5);
 			}
+			lastFuncY = yFunc;
+			lastPolyY = yPoly;
+			lastLineY = yLine;
+			lastRealX = realX;
 		}
 
 		g.setColor(nodeColor);
 		g.drawOval(width - 1, (int)Math.round(
-				(this.interpolationObj.lineFunctionY(maxX) - minY) * yCoefficient
-		), 10, 10);
+				(-this.interpolationObj.lineFunctionY(maxX) - minY) * yCoefficient
+		), 5, 5);
 	}
 }

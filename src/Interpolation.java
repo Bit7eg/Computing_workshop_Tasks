@@ -109,6 +109,14 @@ public class Interpolation implements Cloneable {
         return max;
     }
 
+    public Double getCeilingNode(Double x) {
+        return XtoY.ceilingKey(x);
+    }
+
+    public Double getFloorNode(Double x) {
+        return XtoY.floorKey(x);
+    }
+
     public Interpolation clone() throws CloneNotSupportedException {
         Interpolation cloneObj = (Interpolation) super.clone();
         cloneObj.XtoY = (TreeMap<Double, Double>) XtoY.clone();
