@@ -146,8 +146,9 @@ public class InterpolationGraphic {
             @Override
             public void focusLost(FocusEvent e) {
                 super.focusLost(e);
+                Color color = graphicPanel.setFunctionColor(functionColorTextField.getText());
                 functionColorTextField.setText(
-                        graphicPanel.setFunctionColor(functionColorTextField.getText()).toString()
+                        String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue())
                 );
             }
         });
@@ -156,8 +157,9 @@ public class InterpolationGraphic {
             public void keyPressed(KeyEvent e) {
                 super.keyTyped(e);
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    Color color = graphicPanel.setFunctionColor(functionColorTextField.getText());
                     functionColorTextField.setText(
-                            graphicPanel.setFunctionColor(functionColorTextField.getText()).toString()
+                            String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue())
                     );
                 }
             }
@@ -172,8 +174,9 @@ public class InterpolationGraphic {
             @Override
             public void focusLost(FocusEvent e) {
                 super.focusLost(e);
+                Color color = graphicPanel.setPolynomialColor(polyColorTextField.getText());
                 polyColorTextField.setText(
-                        graphicPanel.setPolynomialColor(polyColorTextField.getText()).toString()
+                        String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue())
                 );
             }
         });
@@ -182,8 +185,9 @@ public class InterpolationGraphic {
             public void keyPressed(KeyEvent e) {
                 super.keyTyped(e);
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    Color color = graphicPanel.setPolynomialColor(polyColorTextField.getText());
                     polyColorTextField.setText(
-                            graphicPanel.setPolynomialColor(polyColorTextField.getText()).toString()
+                            String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue())
                     );
                 }
             }
@@ -198,8 +202,9 @@ public class InterpolationGraphic {
             @Override
             public void focusLost(FocusEvent e) {
                 super.focusLost(e);
+                Color color = graphicPanel.setLineFuncColor(lineColorTextField.getText());
                 lineColorTextField.setText(
-                        graphicPanel.setLineFuncColor(lineColorTextField.getText()).toString()
+                        String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue())
                 );
             }
         });
@@ -208,8 +213,9 @@ public class InterpolationGraphic {
             public void keyPressed(KeyEvent e) {
                 super.keyTyped(e);
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    Color color = graphicPanel.setLineFuncColor(lineColorTextField.getText());
                     lineColorTextField.setText(
-                            graphicPanel.setLineFuncColor(lineColorTextField.getText()).toString()
+                            String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue())
                     );
                 }
             }
@@ -218,14 +224,15 @@ public class InterpolationGraphic {
 
         panel.add(new JLabel("Nodes color:"));
 
-        nodeColorTextField = new JTextField("#FF00FF");
+        nodeColorTextField = new JTextField("#FFFF00");
         nodeColorTextField.setMaximumSize(new Dimension(300, 30));
         nodeColorTextField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
                 super.focusLost(e);
+                Color color = graphicPanel.setNodeColor(nodeColorTextField.getText());
                 nodeColorTextField.setText(
-                        graphicPanel.setNodeColor(nodeColorTextField.getText()).toString()
+                        String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue())
                 );
             }
         });
@@ -234,8 +241,9 @@ public class InterpolationGraphic {
             public void keyPressed(KeyEvent e) {
                 super.keyTyped(e);
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    Color color = graphicPanel.setNodeColor(nodeColorTextField.getText());
                     nodeColorTextField.setText(
-                            graphicPanel.setNodeColor(nodeColorTextField.getText()).toString()
+                            String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue())
                     );
                 }
             }

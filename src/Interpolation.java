@@ -27,12 +27,16 @@ public class Interpolation implements Cloneable {
         return XtoY.size();
     }
 
-    public Double ceilingNode(Double x) {
-        return XtoY.ceilingKey(x);
+    public Double getHigherNode(Double x) {
+        return XtoY.higherKey(x);
     }
 
-    public Double floorNode(Double x) {
-        return XtoY.floorKey(x);
+    public Double getLowerNode(Double x) {
+        return XtoY.lowerKey(x);
+    }
+
+    public Double getNodeValue(Double nodeKey) {
+        return XtoY.get(nodeKey);
     }
 
     public void clear() {
@@ -107,14 +111,6 @@ public class Interpolation implements Cloneable {
         }
 
         return max;
-    }
-
-    public Double getCeilingNode(Double x) {
-        return XtoY.ceilingKey(x);
-    }
-
-    public Double getFloorNode(Double x) {
-        return XtoY.floorKey(x);
     }
 
     public Interpolation clone() throws CloneNotSupportedException {

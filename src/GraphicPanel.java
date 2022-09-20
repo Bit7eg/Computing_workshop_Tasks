@@ -222,26 +222,29 @@ public class GraphicPanel extends JPanel {
 
 	private void drawGraphic(Graphics g) {
 		Double xCoefficient = (maxX - minX)/width,
-				yCoefficient = height/(maxY - minY),
-				lastRealX = minX;
+				yCoefficient = height/(maxY - minY);
 
 		Integer lastLineY, lastPolyY, lastFuncY;
 		lastPolyY = lastFuncY = lastLineY =
 				(int)Math.round((-this.interpolationObj.lineFunctionY(minX) - minY) * yCoefficient);
 
 		g.setColor(nodeColor);
-		g.drawOval(0, lastFuncY, 5, 5);
+		for (Double x = minX; x != null; x = this.interpolationObj.getHigherNode(x)) {
+			g.drawOval((int)Math.round((x - minX)/xCoefficient),
+					(int)Math.round((-this.interpolationObj.getNodeValue(x) - minY) * yCoefficient),
+					5, 5);
+		}
 
 		for(Integer x = 1; x < width; x++) {
 			Double realX = x * xCoefficient + minX;
 
-			Double func = -this.function.apply(realX) - minY;
-			Double poly = -this.interpolationObj.polynomialFunctionY(realX) - minY;
-			Double line = -this.interpolationObj.lineFunctionY(realX) - minY;
+			Double func = this.function.apply(realX);
+			Double poly = this.interpolationObj.polynomialFunctionY(realX);
+			Double line = this.interpolationObj.lineFunctionY(realX);
 
-			Integer yFunc = (int)Math.round(func * yCoefficient);
-			Integer yPoly = (int)Math.round(poly * yCoefficient);
-			Integer yLine = (int)Math.round(line * yCoefficient);
+			Integer yFunc = (int)Math.round((-func - minY) * yCoefficient);
+			Integer yPoly = (int)Math.round((-poly - minY) * yCoefficient);
+			Integer yLine = (int)Math.round((-line - minY) * yCoefficient);
 
 			g.setColor(functionColor);
 			g.drawLine(x-1, lastFuncY, x, yFunc);
@@ -252,20 +255,9 @@ public class GraphicPanel extends JPanel {
 			g.setColor(lineColor);
 			g.drawLine(x-1, lastLineY, x, yLine);
 
-			if ((lastLineY - lastPolyY) * (yLine - yPoly) < 0) {
-				g.setColor(nodeColor);
-				//TODO: make calculation of the intersection !!! HEAR NEED lastRealX VARIABLE !!!
-				g.drawOval(x, yLine, 5, 5);
-			}
 			lastFuncY = yFunc;
 			lastPolyY = yPoly;
 			lastLineY = yLine;
-			lastRealX = realX;
 		}
-
-		g.setColor(nodeColor);
-		g.drawOval(width - 1, (int)Math.round(
-				(-this.interpolationObj.lineFunctionY(maxX) - minY) * yCoefficient
-		), 5, 5);
 	}
 }
