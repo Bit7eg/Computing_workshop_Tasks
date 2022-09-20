@@ -239,10 +239,11 @@ public class GraphicPanel extends JPanel {
 				(int)Math.round((-this.interpolationObj.lineFunctionY(minX) - minY) * yCoefficient);
 
 		g.setColor(nodeColor);
+		Integer dotWidth = 10, dotHeight = 10;
 		for (Double x = minX; x != null; x = this.interpolationObj.getHigherNode(x)) {
-			g.drawOval((int)Math.round((x - minX)/xCoefficient),
-					(int)Math.round((-this.interpolationObj.getNodeValue(x) - minY) * yCoefficient),
-					5, 5);
+			g.fillOval((int)Math.round((x - minX)/xCoefficient) - dotWidth/2,
+					(int)Math.round((-this.interpolationObj.getNodeValue(x) - minY) * yCoefficient) - dotHeight/2,
+					dotWidth, dotHeight);
 		}
 
 		for(Integer x = 0; x < width; x++) {
