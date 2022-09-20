@@ -1,7 +1,30 @@
 import java.util.*;
 
 public class Interpolation implements Cloneable {
-    private HashMap<Double, Double> XAndDividedDifference;
+    private class Pair<K, V> {
+        public K first;
+        public V second;
+
+        public Pair(K first, V second) {
+            this.first = first;
+            this.second = second;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Pair<?, ?> pair = (Pair<?, ?>) o;
+            return first.equals(pair.first) && second.equals(pair.second);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(first, second);
+        }
+    }
+
+    private ArrayList<Pair<Double, Double>> XAndDividedDifference;
     private TreeMap<Double, Double> XtoY = new TreeMap<>(Double::compareTo);
     private Double lastX = null;
     private Double leftError = null;
@@ -9,17 +32,17 @@ public class Interpolation implements Cloneable {
     private Double rightError = null;
 
     public Interpolation() {
-        XAndDividedDifference = new HashMap<>();
+        XAndDividedDifference = new ArrayList<>();
     }
 
     public Interpolation(Integer pairsNumber) {
-        XAndDividedDifference = new HashMap<>(pairsNumber);
+        XAndDividedDifference = new ArrayList<>(pairsNumber);
     }
 
     public void putPair(Double x, Double y) {
         lastX = x;
         XtoY.put(x, y);
-        XAndDividedDifference.put(x, dividedDifference());
+        XAndDividedDifference.add(new Pair<>(x, dividedDifference()));
         leftError = middleError = rightError = null;
     }
 
@@ -67,11 +90,10 @@ public class Interpolation implements Cloneable {
     }
 
     public Double polynomialFunctionY(Double x) {
-        Set<Double> args = XAndDividedDifference.keySet();
         Double prod = 1.0, sum = 0.0;
-        for (Double i: args) {
-            sum += XAndDividedDifference.get(i) * prod;
-            prod *= x - i;
+        for (Pair<Double, Double> pair: XAndDividedDifference) {
+            sum += pair.second * prod;
+            prod *= (x - pair.first);
         }
         return sum;
     }
@@ -117,17 +139,17 @@ public class Interpolation implements Cloneable {
         Interpolation cloneObj = (Interpolation) super.clone();
         cloneObj.XtoY = (TreeMap<Double, Double>) XtoY.clone();
         cloneObj.XAndDividedDifference =
-                (HashMap<Double, Double>) XAndDividedDifference.clone();
+                (ArrayList<Pair<Double, Double>>) XAndDividedDifference.clone();
         return cloneObj;
     }
 
     private void countError() {
-        rightError = leftError = XAndDividedDifference.get(lastX);
+        rightError = leftError = XAndDividedDifference.get(XAndDividedDifference.size() - 1).second;
         Double first = XtoY.firstKey(), last = XtoY.lastKey(),
                 second = XtoY.higherKey(first), beforeLast = XtoY.lowerKey(last);
         for (Integer i = 0; i < XAndDividedDifference.size(); i++) {
-            leftError *= beforeLast - first;
-            rightError *= last - second;
+            leftError *= (beforeLast - first);
+            rightError *= (last - second);
         }
         middleError = Double.max(leftError, rightError);
     }
@@ -139,7 +161,7 @@ public class Interpolation implements Cloneable {
             prod = 1.0;
             for (Double j: args) {
                 if (!i.equals(j))
-                    prod *= i - j;
+                    prod *= (i - j);
             }
             sum += XtoY.get(i)/prod;
         }

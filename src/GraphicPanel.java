@@ -14,8 +14,8 @@ public class GraphicPanel extends JPanel {
 	private Double minY = -1.05;
 	private Double maxY = 1.05;
 	private Integer argumentsNumber = 2;
-	private Integer width;
-	private Integer height;
+	private Integer width = 600;
+	private Integer height = 300;
 
 	public GraphicPanel() {
 		super();
@@ -125,9 +125,19 @@ public class GraphicPanel extends JPanel {
 	}
 
 	private void yBoundsCalc() {
-		//TODO: make y bounds calculation (calculate poly twice?)
-		this.minY = interpolationObj.getLowerYBound();
-		this.maxY = interpolationObj.getUpperYBound();
+		minY = maxY = function.apply(minX);
+		Double xCoefficient = (maxX - minX)/width;
+		for(Integer x = 1; x < width; x++) {
+			Double realX = x * xCoefficient + minX;
+
+			Double func = this.function.apply(realX);
+			Double poly = this.interpolationObj.polynomialFunctionY(realX);
+
+			if (func > this.maxY) this.maxY = func;
+			if (func < this.minY) this.minY = func;
+			if (poly > this.maxY) this.maxY = poly;
+			if (poly < this.minY) this.minY = poly;
+		}
 		if (maxY < 0) {
 			this.minY *= 1.05;
 			this.maxY *= 0.95;
@@ -235,7 +245,7 @@ public class GraphicPanel extends JPanel {
 					5, 5);
 		}
 
-		for(Integer x = 1; x < width; x++) {
+		for(Integer x = 0; x < width; x++) {
 			Double realX = x * xCoefficient + minX;
 
 			Double func = this.function.apply(realX);
