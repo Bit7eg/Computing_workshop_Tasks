@@ -26,9 +26,6 @@ public class Interpolation implements Cloneable {
 
     private ArrayList<Pair<Double, Double>> XAndDividedDifference;
     private TreeMap<Double, Double> XtoY = new TreeMap<>(Double::compareTo);
-    private Double leftError = null;
-    private Double middleError = null;
-    private Double rightError = null;
 
     public Interpolation() {
         XAndDividedDifference = new ArrayList<>();
@@ -41,7 +38,6 @@ public class Interpolation implements Cloneable {
     public void putPair(Double x, Double y) {
         XtoY.put(x, y);
         XAndDividedDifference.add(new Pair<>(x, dividedDifference()));
-        leftError = middleError = rightError = null;
     }
 
     public Integer getPairsCount() {
@@ -61,7 +57,6 @@ public class Interpolation implements Cloneable {
     }
 
     public void clear() {
-        leftError = middleError = rightError = null;
         XtoY.clear();
         XAndDividedDifference.clear();
     }
@@ -94,15 +89,6 @@ public class Interpolation implements Cloneable {
             prod *= (x - pair.first);
         }
         return sum;
-    }
-
-    public Double getError(Double x) {
-        if (middleError == null) countError();
-        if (x < XtoY.higherKey(XtoY.firstKey()))
-            return leftError;
-        if (x > XtoY.lowerKey(XtoY.lastKey()))
-            return rightError;
-        return middleError;
     }
 
     public Double getLowerXBound() {
@@ -139,17 +125,6 @@ public class Interpolation implements Cloneable {
         cloneObj.XAndDividedDifference =
                 (ArrayList<Pair<Double, Double>>) XAndDividedDifference.clone();
         return cloneObj;
-    }
-
-    private void countError() {
-        rightError = leftError = XAndDividedDifference.get(XAndDividedDifference.size() - 1).second;
-        Double first = XtoY.firstKey(), last = XtoY.lastKey(),
-                second = XtoY.higherKey(first), beforeLast = XtoY.lowerKey(last);
-        for (Integer i = 0; i < XAndDividedDifference.size(); i++) {
-            leftError *= (beforeLast - first);
-            rightError *= (last - second);
-        }
-        middleError = Double.max(leftError, rightError);
     }
 
     private Double dividedDifference() {

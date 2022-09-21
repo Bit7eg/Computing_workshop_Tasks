@@ -3,6 +3,7 @@ import java.awt.*;
 import java.util.function.Function;
 
 public class GraphicPanel extends JPanel {
+	//TODO: add bool fixate for scale
 	private Function<Double, Double> function = (x)->0.0;
 	private Function<Integer, Double> nodeCoefficient = (i)->1.0;
 	private Interpolation interpolationObj;
@@ -148,16 +149,9 @@ public class GraphicPanel extends JPanel {
 			if (poly > this.maxY) this.maxY = poly;
 			if (poly < this.minY) this.minY = poly;
 		}
-		if (maxY < 0) {
-			this.minY *= 1.05;
-			this.maxY *= 0.95;
-		} else if (this.minY > 0) {
-			this.minY *= 0.95;
-			this.maxY *= 1.05;
-		} else {
-			this.minY *= 1.05;
-			this.maxY *= 1.05;
-		}
+		Double extension = (maxY - minY)/20;
+		this.minY -= extension;
+		this.maxY += extension;
 	}
 
 	private void interpolationReload() {
@@ -173,6 +167,7 @@ public class GraphicPanel extends JPanel {
 	}
 
 	private void drawGrid(Graphics g) {
+		//TODO: increase distance between labels
 		g.setColor(Color.LIGHT_GRAY);
 		Double yAxisCoefficient = minX/(minX - maxX), xAxisCoefficient = minY/(minY - maxY),
 				xCoefficient = (maxX - minX)/width, yCoefficient = (maxY - minY)/height;
