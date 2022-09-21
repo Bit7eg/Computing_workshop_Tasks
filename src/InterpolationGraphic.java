@@ -37,26 +37,17 @@ public class InterpolationGraphic {
         Container mainContainer = frame.getContentPane();
         mainContainer.setLayout(new BorderLayout());
 
-        JPanel bottomPanel = createBottomPanel();
-        mainContainer.add(bottomPanel, BorderLayout.SOUTH);
-
         Box rightPanel = createRightPanel();
         mainContainer.add(rightPanel, BorderLayout.EAST);
 
 	    graphicPanel = new GraphicPanel((x) -> {
 	        double lx = x;
             return Math.sin(lx);
+        }, (i) -> {
+	        return 1.0;
         });
 	    graphicPanel.setBackground(Color.WHITE);
 	    mainContainer.add(graphicPanel);
-    }
-
-    private JPanel createBottomPanel() {
-        JPanel panel = new JPanel();
-        panel.setBackground(Color.lightGray);
-        statusLabel = new JLabel("Content loading...");
-        panel.add(statusLabel);
-        return panel;
     }
 
     private Box createRightPanel() {

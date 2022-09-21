@@ -26,7 +26,6 @@ public class Interpolation implements Cloneable {
 
     private ArrayList<Pair<Double, Double>> XAndDividedDifference;
     private TreeMap<Double, Double> XtoY = new TreeMap<>(Double::compareTo);
-    private Double lastX = null;
     private Double leftError = null;
     private Double middleError = null;
     private Double rightError = null;
@@ -40,7 +39,6 @@ public class Interpolation implements Cloneable {
     }
 
     public void putPair(Double x, Double y) {
-        lastX = x;
         XtoY.put(x, y);
         XAndDividedDifference.add(new Pair<>(x, dividedDifference()));
         leftError = middleError = rightError = null;
@@ -63,7 +61,7 @@ public class Interpolation implements Cloneable {
     }
 
     public void clear() {
-        lastX = leftError = middleError = rightError = null;
+        leftError = middleError = rightError = null;
         XtoY.clear();
         XAndDividedDifference.clear();
     }

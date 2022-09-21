@@ -4,6 +4,7 @@ import java.util.function.Function;
 
 public class GraphicPanel extends JPanel {
 	private Function<Double, Double> function = (x)->0.0;
+	private Function<Integer, Double> nodeCoefficient = (i)->1.0;
 	private Interpolation interpolationObj;
 	private Color functionColor = Color.RED;
 	private Color polynomialColor = Color.GREEN;
@@ -27,6 +28,15 @@ public class GraphicPanel extends JPanel {
 	public GraphicPanel(Function<Double, Double> func) {
 		super();
 		this.function = func;
+		this.interpolationObj = new Interpolation(this.argumentsNumber);
+		interpolationReload();
+		this.setLayout(null);
+	}
+
+	public GraphicPanel(Function<Double, Double> func, Function<Integer, Double> nodeCoefficient) {
+		super();
+		this.function = func;
+		this.nodeCoefficient = nodeCoefficient;
 		this.interpolationObj = new Interpolation(this.argumentsNumber);
 		interpolationReload();
 		this.setLayout(null);
@@ -153,9 +163,12 @@ public class GraphicPanel extends JPanel {
 	private void interpolationReload() {
 		Double step = (this.maxX - this.minX)/(this.argumentsNumber - 1);
 		this.interpolationObj.clear();
-		for (Double x = this.minX; x <= this.maxX; x += step) {
+		Double x = this.minX;
+		for (Integer i = 0; x < this.maxX && i < argumentsNumber ; i++) {
 			this.interpolationObj.putPair(x, function.apply(x));
+			x += step * this.nodeCoefficient.apply(i);
 		}
+		this.interpolationObj.putPair(this.maxX, function.apply(this.maxX));
 		yBoundsCalc();
 	}
 
