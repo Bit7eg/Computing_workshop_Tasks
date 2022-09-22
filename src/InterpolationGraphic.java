@@ -1,4 +1,6 @@
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -12,6 +14,7 @@ public class InterpolationGraphic {
     private JTextField polyColorTextField;
     private JTextField lineColorTextField;
     private JTextField nodeColorTextField;
+    private JToggleButton scaleFixate;
     private GraphicPanel graphicPanel;
 
     public InterpolationGraphic() {
@@ -240,6 +243,20 @@ public class InterpolationGraphic {
             }
         });
         panel.add(nodeColorTextField);
+
+        scaleFixate = new JToggleButton("Capture scale");
+        scaleFixate.setMaximumSize(new Dimension(300, 30));
+        scaleFixate.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                if (graphicPanel.switchScaleLock()) {
+                    scaleFixate.setText("Release scale");
+                } else {
+                    scaleFixate.setText("Capture scale");
+                }
+            }
+        });
+        panel.add(scaleFixate);
 
         return panel;
     }
