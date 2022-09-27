@@ -3,9 +3,11 @@ import java.awt.*;
 import java.util.function.Function;
 
 public class GraphicPanel extends JPanel {
-	//TODO: add bool fixate for scale
+	interface NodeCounter {
+		Double getNode(Integer node, Double minX, Double maxX, Integer nodesNumber);
+	}
 	private Function<Double, Double> function = (x)->0.0;
-	private Function<Integer, Double> nodeCoefficient = (i)->1.0;
+	private NodeCounter nodeCounter = (i, minX, maxX, nodes)->(maxX - minX)/(nodes - 1) * i + minX;
 	private Interpolation interpolationObj;
 	private Color functionColor = Color.RED;
 	private Color polynomialColor = Color.GREEN;
@@ -13,11 +15,14 @@ public class GraphicPanel extends JPanel {
 	private Color nodeColor = Color.YELLOW;
 	private Double minX = -1.0;
 	private Double maxX = 1.0;
+	private Double screenMinX = -1.05;
+	private Double screenMaxX = 1.05;
 	private Double minY = -1.05;
 	private Double maxY = 1.05;
 	private Integer argumentsNumber = 2;
 	private Integer width = 600;
 	private Integer height = 300;
+	private Boolean isScaleFree = true;
 
 	public GraphicPanel() {
 		super();
@@ -34,10 +39,18 @@ public class GraphicPanel extends JPanel {
 		this.setLayout(null);
 	}
 
-	public GraphicPanel(Function<Double, Double> func, Function<Integer, Double> nodeCoefficient) {
+	public GraphicPanel(NodeCounter nodeCounter) {
+		super();
+		this.nodeCounter = nodeCounter;
+		this.interpolationObj = new Interpolation(this.argumentsNumber);
+		interpolationReload();
+		this.setLayout(null);
+	}
+
+	public GraphicPanel(Function<Double, Double> func, NodeCounter nodeCounter) {
 		super();
 		this.function = func;
-		this.nodeCoefficient = nodeCoefficient;
+		this.nodeCounter = nodeCounter;
 		this.interpolationObj = new Interpolation(this.argumentsNumber);
 		interpolationReload();
 		this.setLayout(null);
@@ -105,7 +118,8 @@ public class GraphicPanel extends JPanel {
 		} catch (NumberFormatException exception) {
 			this.minX = -1.0;
 		}
-		if (this.minX > this.maxX) this.minX = this.maxX - 2.0;
+		if (this.minX >= this.maxX) this.minX = this.maxX - 2.0;
+		xScreenUpdate();
 		interpolationReload();
 		updateGraphic();
 		return this.minX;
@@ -117,7 +131,8 @@ public class GraphicPanel extends JPanel {
 		} catch (NumberFormatException exception) {
 			this.maxX = 1.0;
 		}
-		if (this.minX > this.maxX) this.maxX = this.minX + 2.0;
+		if (this.minX >= this.maxX) this.maxX = this.minX + 2.0;
+		xScreenUpdate();
 		interpolationReload();
 		updateGraphic();
 		return this.maxX;
@@ -135,100 +150,116 @@ public class GraphicPanel extends JPanel {
 		return this.argumentsNumber;
 	}
 
-	private void yBoundsCalc() {
-		minY = maxY = function.apply(minX);
-		Double xCoefficient = (maxX - minX)/width;
-		for(Integer x = 1; x < width; x++) {
-			Double realX = x * xCoefficient + minX;
+	public Boolean switchScaleState() {
+		this.isScaleFree = !this.isScaleFree;
+		xScreenUpdate();
+		yBoundsCalc();
+		updateGraphic();
+		return this.isScaleFree;
+	}
 
-			Double func = this.function.apply(realX);
-			Double poly = this.interpolationObj.polynomialFunctionY(realX);
-
-			if (func > this.maxY) this.maxY = func;
-			if (func < this.minY) this.minY = func;
-			if (poly > this.maxY) this.maxY = poly;
-			if (poly < this.minY) this.minY = poly;
+	private void xScreenUpdate() {
+		if (this.isScaleFree) {
+			this.screenMinX = this.minX - (this.maxX - this.minX)/20;
+			this.screenMaxX = this.maxX + (this.maxX - this.minX)/20;
 		}
-		Double extension = (maxY - minY)/20;
-		this.minY -= extension;
-		this.maxY += extension;
+	}
+
+	private void yBoundsCalc() {
+		if (this.isScaleFree) {
+			minY = maxY = function.apply(minX);
+			Double xCoefficient = (screenMaxX - screenMinX)/width;
+			Integer lastPixel = (int)((maxX - screenMinX)/xCoefficient);
+			for(Integer x = (int)((minX - screenMinX)/xCoefficient); x <= lastPixel; x++) {
+				Double realX = x * xCoefficient + screenMinX;
+
+				Double func = this.function.apply(realX);
+				Double poly = this.interpolationObj.polynomialFunctionY(realX);
+
+				if (func > this.maxY) this.maxY = func;
+				if (func < this.minY) this.minY = func;
+				if (poly > this.maxY) this.maxY = poly;
+				if (poly < this.minY) this.minY = poly;
+			}
+			Double extension = (maxY - minY)/20;
+			this.minY -= extension;
+			this.maxY += extension;
+		}
 	}
 
 	private void interpolationReload() {
-		Double step = (this.maxX - this.minX)/(this.argumentsNumber - 1);
 		this.interpolationObj.clear();
-		Double x = this.minX;
-		for (Integer i = 0; x < this.maxX && i < argumentsNumber ; i++) {
+		Double x = this.nodeCounter.getNode(0, this.minX, this.maxX, this.argumentsNumber);
+		for (Integer i = 1; x >= this.minX && x <= this.maxX && i < argumentsNumber ; i++) {
 			this.interpolationObj.putPair(x, function.apply(x));
-			x += step * this.nodeCoefficient.apply(i);
+			x = this.nodeCounter.getNode(i, this.minX, this.maxX, this.argumentsNumber);
 		}
-		this.interpolationObj.putPair(this.maxX, function.apply(this.maxX));
+		this.interpolationObj.putPair(x, function.apply(x));
 		yBoundsCalc();
 	}
 
 	private void drawGrid(Graphics g) {
-		//TODO: increase distance between labels
 		g.setColor(Color.LIGHT_GRAY);
-		Double yAxisCoefficient = minX/(minX - maxX), xAxisCoefficient = minY/(minY - maxY),
-				xCoefficient = (maxX - minX)/width, yCoefficient = (maxY - minY)/height;
+		Double yAxisCoefficient = screenMinX/(screenMinX - screenMaxX), xAxisCoefficient = maxY/(maxY - minY),
+				xCoefficient = (screenMaxX - screenMinX)/width, yCoefficient = (maxY - minY)/height;
+
+		Integer xStep = 65, yStep = 30;
+
+		if (xAxisCoefficient >= 1) xAxisCoefficient = 1.0;
+		else if (xAxisCoefficient <= 0) xAxisCoefficient = 0.0;
+		if (yAxisCoefficient >= 1) yAxisCoefficient = 1.0;
+		else if (yAxisCoefficient <= 0) yAxisCoefficient = 0.0;
 
 		removeAll();
 		repaint();
 		revalidate();
 
-		for(int x = width/2; x < width; x += 30) {
+		for(int x = (int)(width * yAxisCoefficient) + xStep; x < width; x += xStep) {
 			g.drawLine(x, 0, x, height);
 
-			JLabel coords = new JLabel(Double.toString(x * xCoefficient + minX));
-			if (xAxisCoefficient >= 1) coords.setBounds(x, height - 10, 25, 10);
-			else if (xAxisCoefficient <= 0) coords.setBounds(x, 1, 25, 10);
-			else if (xAxisCoefficient >= 0.5) coords.setBounds(x,
-					(int)Math.round(height * xAxisCoefficient) - 10, 25, 10);
+			JLabel coords = new JLabel(String.format("%.2e", x * xCoefficient + screenMinX));
+			if (xAxisCoefficient >= 0.75) coords.setBounds(x,
+					(int)Math.round(height * xAxisCoefficient) - 10, xStep - 5, 10);
 			else coords.setBounds(x,
-						(int)Math.round(height * xAxisCoefficient), 25, 10);
+						(int)Math.round(height * xAxisCoefficient), xStep - 5, 10);
 			this.add(coords);
 		}
 
-		for(int x = width/2 - 30; x > 0; x -= 30) {
+		for(int x = (int)(width * yAxisCoefficient) - xStep; x > 0; x -= xStep) {
 			g.drawLine(x, 0, x, height);
 
-			JLabel coords = new JLabel(Double.toString(x * xCoefficient + minX));
-			if (xAxisCoefficient >= 1) coords.setBounds(x, height - 10, 25, 10);
-			else if (xAxisCoefficient <= 0) coords.setBounds(x, 1, 25, 10);
-			else if (xAxisCoefficient >= 0.5) coords.setBounds(
-					x, (int)Math.round(height * xAxisCoefficient) - 10, 25, 10);
-			else coords.setBounds(x, (int)Math.round(height * xAxisCoefficient), 25, 10);
+			JLabel coords = new JLabel(String.format("%.2e", x * xCoefficient + screenMinX));
+			if (xAxisCoefficient >= 0.75) coords.setBounds(
+					x, (int)Math.round(height * xAxisCoefficient) - 10, xStep - 5, 10);
+			else coords.setBounds(
+					x, (int)Math.round(height * xAxisCoefficient), xStep - 5, 10);
 			this.add(coords);
 		}
 
-		for(int y = height/2; y < height; y += 30) {
+		for(int y = (int)(height * xAxisCoefficient) + yStep; y < height; y += yStep) {
 			g.drawLine(0, y, width, y);
 
-			JLabel coords = new JLabel(Double.toString(-(y * yCoefficient + minY)));
-			if (yAxisCoefficient >= 1) coords.setBounds(width - 25, y, 25, 10);
-			else if (yAxisCoefficient <= 0) coords.setBounds(1, y, 25, 10);
-			else if (yAxisCoefficient >= 0.5) coords.setBounds(
-					(int)Math.round(width * yAxisCoefficient) - 25, y, 25, 10);
-			else coords.setBounds((int)Math.round(width * yAxisCoefficient), y, 25, 10);
+			JLabel coords = new JLabel(String.format("%.2e", maxY - y * yCoefficient));
+			if (yAxisCoefficient >= 0.75) coords.setBounds(
+					(int)Math.round(width * yAxisCoefficient) - xStep + 5, y, xStep - 5, 10);
+			else coords.setBounds((int)Math.round(width * yAxisCoefficient), y, xStep - 5, 10);
 			this.add(coords);
 		}
 
-		for(int y = height/2 - 30; y > 0; y -= 30) {
+		for(int y = (int)(height * xAxisCoefficient) - yStep; y > 0; y -= yStep) {
 			g.drawLine(0, y, width, y);
 
-			JLabel coords = new JLabel(Double.toString(-(y * yCoefficient + minY)));
-			if (yAxisCoefficient >= 1) coords.setBounds(width - 25, y, 25, 10);
-			else if (yAxisCoefficient <= 0) coords.setBounds(1, y, 25, 10);
-			else if (yAxisCoefficient >= 0.5) coords.setBounds(
-					(int)Math.round(width * yAxisCoefficient) - 25, y, 25, 10);
-			else coords.setBounds((int)Math.round(width * yAxisCoefficient), y, 25, 10);
+			JLabel coords = new JLabel(String.format("%.2e", maxY - y * yCoefficient));
+			if (yAxisCoefficient >= 0.75) coords.setBounds(
+					(int)Math.round(width * yAxisCoefficient) - xStep + 5, y, xStep - 5, 10);
+			else coords.setBounds((int)Math.round(width * yAxisCoefficient), y, xStep - 5, 10);
 			this.add(coords);
 		}
 	}
 
 	private void drawAxis(Graphics g) {
 		g.setColor(Color.BLACK);
-		Double yAxisCoefficient = minX/(minX - maxX), xAxisCoefficient = minY/(minY - maxY);
+		Double yAxisCoefficient = screenMinX/(screenMinX - screenMaxX), xAxisCoefficient = maxY/(maxY - minY);
 		if (yAxisCoefficient < 1 && yAxisCoefficient > 0)
 			g.drawLine((int)Math.round(width * yAxisCoefficient), 0,
 					(int)Math.round(width * yAxisCoefficient), height);
@@ -239,44 +270,58 @@ public class GraphicPanel extends JPanel {
 	}
 
 	private void drawGraphic(Graphics g) {
-		Double xCoefficient = (maxX - minX)/width,
+		Double usedMaxX = screenMaxX, usedMinX = screenMinX;
+		if (maxX < usedMaxX) usedMaxX = maxX;
+		if (minX > usedMinX) usedMinX = minX;
+
+		Double xCoefficient = (screenMaxX - screenMinX)/width,
 				yCoefficient = height/(maxY - minY);
 
-		Integer lastLineY, lastPolyY, lastFuncY;
-		lastPolyY = lastFuncY = lastLineY =
-				(int)Math.round((-this.interpolationObj.lineFunctionY(minX) - minY) * yCoefficient);
+		Integer lastLineY = (int)Math.round((maxY - this.interpolationObj.lineFunctionY(usedMinX)) * yCoefficient),
+				lastPolyY = (int)Math.round((maxY - this.interpolationObj.polynomialFunctionY(usedMinX)) * yCoefficient),
+				lastFuncY = (int)Math.round((maxY - this.function.apply(usedMinX)) * yCoefficient);
 
 		g.setColor(nodeColor);
 		Integer dotWidth = 10, dotHeight = 10;
-		for (Double x = minX; x != null; x = this.interpolationObj.getHigherNode(x)) {
-			g.fillOval((int)Math.round((x - minX)/xCoefficient) - dotWidth/2,
-					(int)Math.round((-this.interpolationObj.getNodeValue(x) - minY) * yCoefficient) - dotHeight/2,
-					dotWidth, dotHeight);
+		Double x = this.interpolationObj.getCeilingNode(usedMinX);
+		if (x != null) {
+			for (Integer coordinateX = (int) Math.round((x - screenMinX) / xCoefficient);
+				 coordinateX < width;
+				 coordinateX = (int) Math.round((x - screenMinX) / xCoefficient)) {
+				g.fillOval(coordinateX - dotWidth / 2,
+						(int) Math.round((maxY - this.interpolationObj.getNodeValue(x)) * yCoefficient) - dotHeight / 2,
+						dotWidth, dotHeight);
+				x = this.interpolationObj.getHigherNode(x);
+				if (x == null) break;
+			}
 		}
 
-		for(Integer x = 0; x < width; x++) {
-			Double realX = x * xCoefficient + minX;
+		for(Integer coordinateX = (int)Math.round((usedMinX - screenMinX)/xCoefficient);
+			coordinateX < width;
+			coordinateX++) {
+			Double realX = coordinateX * xCoefficient + screenMinX;
 
 			Double func = this.function.apply(realX);
 			Double poly = this.interpolationObj.polynomialFunctionY(realX);
 			Double line = this.interpolationObj.lineFunctionY(realX);
 
-			Integer yFunc = (int)Math.round((-func - minY) * yCoefficient);
-			Integer yPoly = (int)Math.round((-poly - minY) * yCoefficient);
-			Integer yLine = (int)Math.round((-line - minY) * yCoefficient);
+			Integer yFunc = (int)Math.round((maxY - func) * yCoefficient);
+			Integer yPoly = (int)Math.round((maxY - poly) * yCoefficient);
+			Integer yLine = (int)Math.round((maxY - line) * yCoefficient);
 
 			g.setColor(functionColor);
-			g.drawLine(x-1, lastFuncY, x, yFunc);
+			g.drawLine(coordinateX-1, lastFuncY, coordinateX, yFunc);
 
 			g.setColor(polynomialColor);
-			g.drawLine(x-1, lastPolyY, x, yPoly);
+			g.drawLine(coordinateX-1, lastPolyY, coordinateX, yPoly);
 
 			g.setColor(lineColor);
-			g.drawLine(x-1, lastLineY, x, yLine);
+			g.drawLine(coordinateX-1, lastLineY, coordinateX, yLine);
 
 			lastFuncY = yFunc;
 			lastPolyY = yPoly;
 			lastLineY = yLine;
+			if (realX > usedMaxX) break;
 		}
 	}
 }

@@ -48,8 +48,16 @@ public class Interpolation implements Cloneable {
         return XtoY.higherKey(x);
     }
 
+    public Double getCeilingNode(Double x) {
+        return XtoY.ceilingKey(x);
+    }
+
     public Double getLowerNode(Double x) {
         return XtoY.lowerKey(x);
+    }
+
+    public Double getFloorNode(Double x) {
+        return XtoY.floorKey(x);
     }
 
     public Double getNodeValue(Double nodeKey) {
@@ -61,6 +69,12 @@ public class Interpolation implements Cloneable {
         XAndDividedDifference.clear();
     }
 
+    /**
+     * Функция вычисляет значение кусочно-линейной функции для переданного аргумента.
+     *
+     * @param x аргумент, для которого вычисляется значение функции.
+     * @return Значение кусочно-линейной функции.
+     */
     public Double lineFunctionY(Double x) {
         Map.Entry<Double, Double> rPair = null,
                 lPair = null;
@@ -82,6 +96,12 @@ public class Interpolation implements Cloneable {
                 (rPair.getValue() - lPair.getValue()) + lPair.getValue();
     }
 
+    /**
+     * Функция вычисляет значение интерполяционного полинома в форме Ньютона для переданного аргумента.
+     *
+     * @param x аргумент, для которого вычисляется значение полинома.
+     * @return Значение интерполяционного полинома.
+     */
     public Double polynomialFunctionY(Double x) {
         Double prod = 1.0, sum = 0.0;
         for (Pair<Double, Double> pair: XAndDividedDifference) {
@@ -127,6 +147,11 @@ public class Interpolation implements Cloneable {
         return cloneObj;
     }
 
+    /**
+     * Вычисляет разделённую разность, используя все известные узлы интерполяции и соответсвтующие им значения функции.
+     *
+     * @return Разделённую разность
+     */
     private Double dividedDifference() {
         Set<Double> args = XtoY.keySet();
         Double prod, sum = 0.0;

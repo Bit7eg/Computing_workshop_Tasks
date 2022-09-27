@@ -1,4 +1,6 @@
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -12,6 +14,7 @@ public class InterpolationGraphic {
     private JTextField polyColorTextField;
     private JTextField lineColorTextField;
     private JTextField nodeColorTextField;
+    private JToggleButton scaleLockButton;
     private GraphicPanel graphicPanel;
 
     public InterpolationGraphic() {
@@ -40,11 +43,14 @@ public class InterpolationGraphic {
         Box rightPanel = createRightPanel();
         mainContainer.add(rightPanel, BorderLayout.EAST);
 
-	    graphicPanel = new GraphicPanel((x) -> {
+	    graphicPanel = new GraphicPanel((x) -> {    //любая функция от x
 	        double lx = x;
             return Math.sin(lx);
-        }, (i) -> {
-	        return 1.0;
+        }, (i, minX, maxX, nodes) -> {  //любая функция, дающая nodes различных значений на отрезке [minX, maxX] для i = 0, 1, ..., nodes - 1
+            Double k = (maxX - minX)/2;
+            Double m = (maxX + minX)/2;
+            Double x = (2 * i + 1) * Math.PI / (2 * nodes);
+	        return m + k * Math.cos(x);
         });
 	    graphicPanel.setBackground(Color.WHITE);
 	    mainContainer.add(graphicPanel);
@@ -240,6 +246,20 @@ public class InterpolationGraphic {
             }
         });
         panel.add(nodeColorTextField);
+
+        scaleLockButton = new JToggleButton("Capture scale");
+        scaleLockButton.setMaximumSize(new Dimension(300, 30));
+        scaleLockButton.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                if (graphicPanel.switchScaleState()) {
+                    scaleLockButton.setText("Capture scale");
+                } else {
+                    scaleLockButton.setText("Release scale");
+                }
+            }
+        });
+        panel.add(scaleLockButton);
 
         return panel;
     }
