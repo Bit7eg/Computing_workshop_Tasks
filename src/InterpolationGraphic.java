@@ -14,7 +14,7 @@ public class InterpolationGraphic {
     private JTextField polyColorTextField;
     private JTextField lineColorTextField;
     private JTextField nodeColorTextField;
-    private JToggleButton scaleFixate;
+    private JToggleButton scaleLockButton;
     private GraphicPanel graphicPanel;
 
     public InterpolationGraphic() {
@@ -43,11 +43,14 @@ public class InterpolationGraphic {
         Box rightPanel = createRightPanel();
         mainContainer.add(rightPanel, BorderLayout.EAST);
 
-	    graphicPanel = new GraphicPanel((x) -> {
+	    graphicPanel = new GraphicPanel((x) -> {    //любая функция от x
 	        double lx = x;
             return Math.sin(lx);
-        }, (i) -> {
-	        return 1.0;
+        }, (i, minX, maxX, nodes) -> {  //любая функция, дающая nodes различных значений на отрезке [minX, maxX] для i = 0, 1, ..., nodes - 1
+            Double k = (maxX - minX)/2;
+            Double m = (maxX + minX)/2;
+            Double x = (2 * i + 1) * Math.PI / (2 * nodes);
+	        return m + k * Math.cos(x);
         });
 	    graphicPanel.setBackground(Color.WHITE);
 	    mainContainer.add(graphicPanel);
@@ -244,19 +247,19 @@ public class InterpolationGraphic {
         });
         panel.add(nodeColorTextField);
 
-        scaleFixate = new JToggleButton("Capture scale");
-        scaleFixate.setMaximumSize(new Dimension(300, 30));
-        scaleFixate.addChangeListener(new ChangeListener() {
+        scaleLockButton = new JToggleButton("Capture scale");
+        scaleLockButton.setMaximumSize(new Dimension(300, 30));
+        scaleLockButton.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                if (graphicPanel.switchScaleLock()) {
-                    scaleFixate.setText("Release scale");
+                if (graphicPanel.switchScaleState()) {
+                    scaleLockButton.setText("Capture scale");
                 } else {
-                    scaleFixate.setText("Capture scale");
+                    scaleLockButton.setText("Release scale");
                 }
             }
         });
-        panel.add(scaleFixate);
+        panel.add(scaleLockButton);
 
         return panel;
     }
