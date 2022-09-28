@@ -32,7 +32,7 @@ public class InterpolationGraphic {
 
     private void createWindow() {
         frame = new JFrame("Interpolation");
-        frame.setSize(600, 300);
+        frame.setSize(1900, 1000);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
@@ -43,9 +43,13 @@ public class InterpolationGraphic {
         Box rightPanel = createRightPanel();
         mainContainer.add(rightPanel, BorderLayout.EAST);
 
-	    graphicPanel = new GraphicPanel((x) -> {    //любая функция от x
-	        double lx = x;
-            return Math.sin(lx);
+	    graphicPanel = new GraphicPanel((x) -> {    //интерполируемая функция от x
+	        if (x > 500.5) {
+	            return 100.0;
+            }
+	        else {
+	            return 101 + 1.0/3.0 * Math.cos(3*x);
+            }
         }, (i, minX, maxX, nodes) -> {  //любая функция, дающая nodes различных значений на отрезке [minX, maxX] для i = 0, 1, ..., nodes - 1
             Double k = (maxX - minX)/2;
             Double m = (maxX + minX)/2;

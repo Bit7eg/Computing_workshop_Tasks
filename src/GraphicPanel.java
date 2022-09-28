@@ -13,13 +13,13 @@ public class GraphicPanel extends JPanel {
 	private Color polynomialColor = Color.GREEN;
 	private Color lineColor = Color.BLUE;
 	private Color nodeColor = Color.YELLOW;
-	private Double minX = -1.0;
-	private Double maxX = 1.0;
-	private Double screenMinX = -1.05;
-	private Double screenMaxX = 1.05;
-	private Double minY = -1.05;
-	private Double maxY = 1.05;
-	private Integer argumentsNumber = 2;
+	private Double minX = 500.0;
+	private Double maxX = 501.0;
+	private Double screenMinX;
+	private Double screenMaxX;
+	private Double minY;
+	private Double maxY;
+	private Integer argumentsNumber = 5;
 	private Integer width = 600;
 	private Integer height = 300;
 	private Boolean isScaleFree = true;
@@ -27,6 +27,7 @@ public class GraphicPanel extends JPanel {
 	public GraphicPanel() {
 		super();
 		this.interpolationObj = new Interpolation(this.argumentsNumber);
+		xScreenUpdate();
 		interpolationReload();
 		this.setLayout(null);
 	}
@@ -35,6 +36,7 @@ public class GraphicPanel extends JPanel {
 		super();
 		this.function = func;
 		this.interpolationObj = new Interpolation(this.argumentsNumber);
+		xScreenUpdate();
 		interpolationReload();
 		this.setLayout(null);
 	}
@@ -43,6 +45,7 @@ public class GraphicPanel extends JPanel {
 		super();
 		this.nodeCounter = nodeCounter;
 		this.interpolationObj = new Interpolation(this.argumentsNumber);
+		xScreenUpdate();
 		interpolationReload();
 		this.setLayout(null);
 	}
@@ -52,7 +55,15 @@ public class GraphicPanel extends JPanel {
 		this.function = func;
 		this.nodeCounter = nodeCounter;
 		this.interpolationObj = new Interpolation(this.argumentsNumber);
+		xScreenUpdate();
 		interpolationReload();
+
+		for (int i = 1; i < 50; i++) {
+			Double x = minX + (maxX - minX)/50 * i;
+			Double y = this.function.apply(x);
+			System.out.printf("%15.10f %15.10f\n", x, y);
+		}
+
 		this.setLayout(null);
 	}
 
