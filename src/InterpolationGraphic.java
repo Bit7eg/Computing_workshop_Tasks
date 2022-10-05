@@ -43,19 +43,7 @@ public class InterpolationGraphic {
         Box rightPanel = createRightPanel();
         mainContainer.add(rightPanel, BorderLayout.EAST);
 
-	    graphicPanel = new GraphicPanel((x) -> {    //интерполируемая функция от x
-	        if (x > 500.5) {
-	            return 100.0;
-            }
-	        else {
-	            return 101 + 1.0/3.0 * Math.cos(3*x);
-            }
-        }, (i, minX, maxX, nodes) -> {  //любая функция, дающая nodes различных значений на отрезке [minX, maxX] для i = 0, 1, ..., nodes - 1
-            Double k = (maxX - minX)/2;
-            Double m = (maxX + minX)/2;
-            Double x = (2 * i + 1) * Math.PI / (2 * nodes);
-	        return m + k * Math.cos(x);
-        });
+	    graphicPanel = new GraphicPanel();
 	    graphicPanel.setBackground(Color.WHITE);
 	    mainContainer.add(graphicPanel);
     }

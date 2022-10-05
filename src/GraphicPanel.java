@@ -6,23 +6,34 @@ public class GraphicPanel extends JPanel {
 	interface NodeCounter {
 		Double getNode(Integer node, Double minX, Double maxX, Integer nodesNumber);
 	}
-	private Function<Double, Double> function = (x)->0.0;
-	private NodeCounter nodeCounter = (i, minX, maxX, nodes)->(maxX - minX)/(nodes - 1) * i + minX;
+
+	private Function<Double, Double> function = (x) -> {    //интерполируемая функция от x
+		return 1.0/(1.0 + 25.0 * x * x);
+	};
+
+	private NodeCounter nodeCounter = (i, minX, maxX, nodes) -> {  //любая функция, дающая nodes различных значений на отрезке [minX, maxX] для i = 0, 1, ..., nodes - 1
+		Double k = (maxX - minX)/2;
+		Double m = (maxX + minX)/2;
+		Double x = (2 * i + 1) * Math.PI / (2 * nodes);
+		return m + k * Math.cos(x);
+		/*return minX + (maxX - minX)/(nodes-1) * i;*/
+	};
+
 	private Interpolation interpolationObj;
 	private Color functionColor = Color.RED;
 	private Color polynomialColor = Color.GREEN;
 	private Color lineColor = Color.BLUE;
-	private Color nodeColor = Color.YELLOW;
-	private Double minX = 500.0;
-	private Double maxX = 501.0;
-	private Double screenMinX;
-	private Double screenMaxX;
-	private Double minY;
-	private Double maxY;
-	private Integer argumentsNumber = 5;
+	private Color nodeColor = new Color(200, 127, 0);
+	private Double minX = -1.0;
+	private Double maxX = 1.0;
+	private Double screenMinX = -1.1;
+	private Double screenMaxX = 1.1;
+	private Double minY = -0.5;
+	private Double maxY = 1.5;
+	private Integer argumentsNumber = 30;
 	private Integer width = 600;
 	private Integer height = 300;
-	private Boolean isScaleFree = true;
+	private Boolean isScaleFree = false;
 
 	public GraphicPanel() {
 		super();
@@ -57,13 +68,6 @@ public class GraphicPanel extends JPanel {
 		this.interpolationObj = new Interpolation(this.argumentsNumber);
 		xScreenUpdate();
 		interpolationReload();
-
-		for (int i = 1; i < 50; i++) {
-			Double x = minX + (maxX - minX)/50 * i;
-			Double y = this.function.apply(x);
-			System.out.printf("%15.10f %15.10f\n", x, y);
-		}
-
 		this.setLayout(null);
 	}
 
@@ -307,6 +311,7 @@ public class GraphicPanel extends JPanel {
 			}
 		}
 
+		Double lowerXNode = interpolationObj.getLowerXBound(), upperXNode = interpolationObj.getUpperXBound();
 		for(Integer coordinateX = (int)Math.round((usedMinX - screenMinX)/xCoefficient);
 			coordinateX < width;
 			coordinateX++) {
@@ -326,8 +331,10 @@ public class GraphicPanel extends JPanel {
 			g.setColor(polynomialColor);
 			g.drawLine(coordinateX-1, lastPolyY, coordinateX, yPoly);
 
-			g.setColor(lineColor);
-			g.drawLine(coordinateX-1, lastLineY, coordinateX, yLine);
+			/*if (realX >= lowerXNode && realX <= upperXNode) {
+				g.setColor(lineColor);
+				g.drawLine(coordinateX-1, lastLineY, coordinateX, yLine);
+			}*/
 
 			lastFuncY = yFunc;
 			lastPolyY = yPoly;
