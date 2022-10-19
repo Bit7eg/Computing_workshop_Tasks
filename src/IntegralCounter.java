@@ -14,10 +14,10 @@ public class IntegralCounter {
     }
 
     public Double leftRectangleCalculate(Integer rectangleNumber) {
-        Double integral = 0.0;
+        double integral = 0.0;
 
         Double rectangleWidth = (this.b - this.a)/rectangleNumber;
-        for (Double xi = this.a; xi < this.b; xi += rectangleWidth) {
+        for (Double xi = this.a; this.b - xi >= rectangleWidth/4 ; xi += rectangleWidth) {
             integral += function.apply(xi) * rectangleWidth;
         }
 
@@ -25,10 +25,10 @@ public class IntegralCounter {
     }
 
     public Double centerRectangleCalculate(Integer rectangleNumber) {
-        Double integral = 0.0;
+        double integral = 0.0;
 
         Double rectangleWidth = (this.b - this.a)/rectangleNumber;
-        for (Double xi = this.a + rectangleWidth/2; xi < this.b; xi += rectangleWidth) {
+        for (Double xi = this.a + rectangleWidth/2; this.b - xi >= rectangleWidth/4; xi += rectangleWidth) {
             integral += function.apply(xi) * rectangleWidth;
         }
 
@@ -36,15 +36,23 @@ public class IntegralCounter {
     }
 
     public Double trapezoidCalculate(Integer trapezoidNumber) {
-        Double integral = 0.0;
+        double integral = 0.0;
 
-        Double trapezoidHeight = (this.b - this.a)/trapezoidNumber;
-        Double lastX = this.a;
-        for (Double xi = lastX + trapezoidHeight; xi <= this.b; xi += trapezoidHeight) {
+        double trapezoidHeight = (this.b - this.a)/trapezoidNumber;
+        double lastX = this.a;
+        for (double xi = lastX + trapezoidHeight; xi - this.b <= trapezoidHeight/4; xi += trapezoidHeight) {
             integral += (function.apply(lastX) + function.apply(xi))/2 * trapezoidHeight;
             lastX = xi;
         }
 
         return integral;
+    }
+
+    public Double SimpsonCalculate(Integer intervalNumber) {
+        return 0.0;
+    }
+
+    public Double GaussCalculate(Integer intervalNumber, Integer nodesNumber) {
+        return 0.0;
     }
 }

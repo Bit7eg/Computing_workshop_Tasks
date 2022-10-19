@@ -9,12 +9,12 @@ public class Task2 {
 
         IntegralCounter integral = new IntegralCounter(
                 (x)->{
-                    return 1.0;
+                    return x*x*x + x*x + x + 1;
                 },
                 0.0,
                 1.0
         );
-        Double realIntegralValue = 1.0;
+        Double realIntegralValue = 2.0 + 1.0/12.0;
 
         System.out.println("Mistake values table:\n");
         System.out.printf("%" + firstColumnWidth + "s | " +
