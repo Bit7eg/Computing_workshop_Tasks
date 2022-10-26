@@ -49,10 +49,23 @@ public class IntegralCounter {
     }
 
     public Double SimpsonCalculate(Integer intervalNumber) {
-        return 0.0;
+        double integral = 0.0;
+
+        double intervalLength = (this.b - this.a)/intervalNumber;
+        double lastX = this.a;
+        for (double xi = lastX + 2*intervalLength; xi - this.b <= intervalLength/4; xi += 2*intervalLength) {
+            integral += (function.apply(lastX) + 4 * function.apply(lastX + intervalLength) + function.apply(xi)) * intervalLength/3;
+            lastX = xi;
+        }
+
+        return integral;
     }
 
-    public Double GaussCalculate(Integer intervalNumber, Integer nodesNumber) {
-        return 0.0;
+    public Double GaussCalculate(Integer intervalNumber) {
+        double integral = 0.0;
+
+
+
+        return integral;
     }
 }
