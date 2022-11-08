@@ -39,10 +39,11 @@ public class IntegralCounter {
         double integral = 0.0;
 
         double trapezoidHeight = (this.b - this.a)/trapezoidNumber;
-        double lastX = this.a;
-        for (double xi = lastX + trapezoidHeight; xi - this.b <= trapezoidHeight/4; xi += trapezoidHeight) {
-            integral += (function.apply(lastX) + function.apply(xi))/2 * trapezoidHeight;
-            lastX = xi;
+        double lastY = function.apply(this.a);
+        for (double xi = this.a + trapezoidHeight; xi - this.b <= trapezoidHeight/4; xi += trapezoidHeight) {
+            double yi = function.apply(xi);
+            integral += (lastY + yi)/2 * trapezoidHeight;
+            lastY = yi;
         }
 
         return integral;
@@ -52,19 +53,20 @@ public class IntegralCounter {
         double integral = 0.0;
 
         double intervalLength = (this.b - this.a)/intervalNumber;
-        double lastX = this.a;
-        for (double xi = lastX + 2*intervalLength; xi - this.b <= intervalLength/4; xi += 2*intervalLength) {
-            integral += (function.apply(lastX) + 4 * function.apply(lastX + intervalLength) + function.apply(xi)) * intervalLength/3;
-            lastX = xi;
+        double lastY = function.apply(this.a);
+        for (double xi = this.a + intervalLength; xi - this.b <= intervalLength/4; xi += intervalLength) {
+            double yi = function.apply(xi);
+            integral += (lastY + 4 * function.apply(xi - intervalLength/2) + yi) * intervalLength/6;
+            lastY = yi;
         }
 
         return integral;
     }
 
-    public Double GaussCalculate(Integer intervalNumber) {
+    public Double GaussCalculate(Integer intervalNumber, Integer polynomialPower) {
         double integral = 0.0;
 
-
+        LegendrePolynomial polynomial = new LegendrePolynomial(polynomialPower);
 
         return integral;
     }
