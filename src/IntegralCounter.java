@@ -67,6 +67,21 @@ public class IntegralCounter {
         double integral = 0.0;
 
         LegendrePolynomial polynomial = new LegendrePolynomial(polynomialPower);
+        double[] roots = polynomial.getRoots();
+        double[] coefficients = new double[polynomialPower];
+        for (int i = 0; i < polynomialPower; i++) {
+            double derivative = polynomial.calculateDerivative(roots[i]);
+            coefficients[i] = 2.0/((1.0 - roots[i] * roots[i]) * derivative * derivative);
+        }
+
+        double intervalLength = (this.b - this.a)/intervalNumber;
+        double lastX = this.a;
+        for (double xi = this.a + intervalLength; xi - this.b <= intervalLength/4; xi += intervalLength) {
+            for (int i = 0; i < polynomialPower; i++) {
+                integral += coefficients[i] * function.apply(intervalLength / 2 * roots[i] + (xi + lastX) / 2);
+            }
+            lastX = xi;
+        }
 
         return integral;
     }

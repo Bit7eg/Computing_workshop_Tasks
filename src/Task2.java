@@ -1,12 +1,11 @@
-public class Task2 {
-    public static void main(String[] args) {
-        Integer columnsWidth = 30,
-                firstColumnWidth = 10,
-                numberOutputAccuracy = 25;
-        Integer[] accuracies = {
-                10, 100, 1000,
-        };
+import java.util.function.Function;
 
+public class Task2 {
+    static final int firstColumnWidth = 20,
+            numberOutputAccuracy = 25,
+            intervalsNumber = 64;
+
+    public static void main(String[] args) {
         IntegralCounter integral = new IntegralCounter(
                 (x)->{
                     return Math.cos(x);
@@ -18,25 +17,27 @@ public class Task2 {
 
         System.out.println("Mistake values table:\n");
         System.out.printf("%" + firstColumnWidth + "s | " +
-                "%" + columnsWidth + "s | " +
-                "%" + columnsWidth + "s | " +
-                "%" + columnsWidth + "s | " +
-                "%" + columnsWidth + "s | " +
-                "%" + columnsWidth + "s | \n",
-                "", "Left Rectangles", "Center Rectangles", "Trapezoid", "Simpson", "Gauss");
+                "%" + (numberOutputAccuracy + 5) + "s | " +
+                "%" + (numberOutputAccuracy + 5) + "s | " +
+                "%" + (numberOutputAccuracy + 5) + "s | \n",
+                "", "N", "2*N", "Improved");
 
-        for (Integer i: accuracies) {
-            System.out.printf("%" + firstColumnWidth + "d | " +
-                            "%" + columnsWidth + "." + numberOutputAccuracy + "f | " +
-                            "%" + columnsWidth + "." + numberOutputAccuracy + "f | " +
-                            "%" + columnsWidth + "." + numberOutputAccuracy + "f | " +
-                            "%" + columnsWidth + "." + numberOutputAccuracy + "f | " +
-                            "%" + columnsWidth + "." + numberOutputAccuracy + "f | \n",
-                    i, Math.abs(realIntegralValue - integral.leftRectangleCalculate(i)),
-                    Math.abs(realIntegralValue - integral.centerRectangleCalculate(i)),
-                    Math.abs(realIntegralValue - integral.trapezoidCalculate(i)),
-                    Math.abs(realIntegralValue - integral.SimpsonCalculate(i)),
-                    Math.abs(realIntegralValue - integral.GaussCalculate(i)));
-        }
+        printRow("Left Rectangles", integral::leftRectangleCalculate, realIntegralValue);
+        printRow("Center Rectangles", integral::centerRectangleCalculate, realIntegralValue);
+        printRow("Trapezoid", integral::trapezoidCalculate, realIntegralValue);
+        printRow("Simpson", integral::SimpsonCalculate, realIntegralValue);
+        printRow("Gauss for 2 roots", i -> integral.GaussCalculate(i, 2), realIntegralValue);
+        printRow("Gauss for 3 roots", i -> integral.GaussCalculate(i, 3), realIntegralValue);
+    }
+
+    static void printRow(String name, Function<Integer, Double> method, double realValue) {
+        double resultN = method.apply(intervalsNumber);
+        double result2N = method.apply(2 * intervalsNumber);
+        int accuracyOrder = 0;
+        System.out.printf("%" + firstColumnWidth + "s | " +
+                "%" + (numberOutputAccuracy + 5) + "." + numberOutputAccuracy + "f | " +
+                "%" + (numberOutputAccuracy + 5) + "." + numberOutputAccuracy + "f | " +
+                "%" + (numberOutputAccuracy + 5) + "." + numberOutputAccuracy + "f | \n",
+                name, Math.abs(realValue - resultN), Math.abs(realValue - result2N), 0.0/*NetsListCounting.increaseAccuracy(resultN, result2N, accuracyOrder)*/);
     }
 }
