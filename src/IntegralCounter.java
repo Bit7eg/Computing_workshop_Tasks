@@ -77,9 +77,11 @@ public class IntegralCounter {
         double intervalLength = (this.b - this.a)/intervalNumber;
         double lastX = this.a;
         for (double xi = this.a + intervalLength; xi - this.b <= intervalLength/4; xi += intervalLength) {
+            double iSum = 0;
             for (int i = 0; i < polynomialPower; i++) {
-                integral += coefficients[i] * function.apply(intervalLength / 2 * roots[i] + (xi + lastX) / 2);
+                iSum += coefficients[i] * function.apply(intervalLength / 2 * roots[i] + (xi + lastX) / 2);
             }
+            integral += (intervalLength/2) * iSum;
             lastX = xi;
         }
 
