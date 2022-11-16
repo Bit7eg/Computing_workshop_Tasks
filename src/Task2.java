@@ -13,13 +13,13 @@ public class Task2 {
                 -Math.PI,
                 Math.PI/2
         );
-        Double realIntegralValue = 1.0;
+        Double realIntegralValue = 1.0; //TODO: напиать формулу рассчёта
 
         System.out.println("Mistake values table:\n");
         System.out.printf("%" + firstColumnWidth + "s | " +
-                "%" + (numberOutputAccuracy + 5) + "s | " +
-                "%" + (numberOutputAccuracy + 5) + "s | " +
-                "%" + (numberOutputAccuracy + 5) + "s | \n",
+                "%" + (numberOutputAccuracy + 2) + "s | " +
+                "%" + (numberOutputAccuracy + 2) + "s | " +
+                "%" + (numberOutputAccuracy + 2) + "s | \n",
                 "", "N", "2*N", "Improved");
 
         printRow("Left Rectangles", integral::leftRectangleCalculate, realIntegralValue, 1);
@@ -35,9 +35,9 @@ public class Task2 {
         double result2N = method.apply(2 * intervalsNumber);
         double improved = NetsListCounting.increaseAccuracy(resultN, result2N, accuracyOrder);
         System.out.printf("%" + firstColumnWidth + "s | " +
-                "%" + (numberOutputAccuracy + 5) + "." + numberOutputAccuracy + "f | " +
-                "%" + (numberOutputAccuracy + 5) + "." + numberOutputAccuracy + "f | " +
-                "%" + (numberOutputAccuracy + 5) + "." + numberOutputAccuracy + "f | \n",
+                "%" + (numberOutputAccuracy + 2) + "." + numberOutputAccuracy + "f | " +
+                "%" + (numberOutputAccuracy + 2) + "." + numberOutputAccuracy + "f | " +
+                "%" + (numberOutputAccuracy + 2) + "." + numberOutputAccuracy + "f | \n",
                 name, Math.abs(realValue - resultN), Math.abs(realValue - result2N), Math.abs(realValue - improved));
     }
 }
