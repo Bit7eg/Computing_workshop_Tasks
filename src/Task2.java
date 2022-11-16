@@ -22,22 +22,22 @@ public class Task2 {
                 "%" + (numberOutputAccuracy + 5) + "s | \n",
                 "", "N", "2*N", "Improved");
 
-        printRow("Left Rectangles", integral::leftRectangleCalculate, realIntegralValue);
-        printRow("Center Rectangles", integral::centerRectangleCalculate, realIntegralValue);
-        printRow("Trapezoid", integral::trapezoidCalculate, realIntegralValue);
-        printRow("Simpson", integral::SimpsonCalculate, realIntegralValue);
-        printRow("Gauss for 2 roots", i -> integral.GaussCalculate(i, 2), realIntegralValue);
-        printRow("Gauss for 3 roots", i -> integral.GaussCalculate(i, 3), realIntegralValue);
+        printRow("Left Rectangles", integral::leftRectangleCalculate, realIntegralValue, 1);
+        printRow("Center Rectangles", integral::centerRectangleCalculate, realIntegralValue, 2);
+        printRow("Trapezoid", integral::trapezoidCalculate, realIntegralValue, 2);
+        printRow("Simpson", integral::SimpsonCalculate, realIntegralValue, 4);
+        printRow("Gauss for 2 roots", i -> integral.GaussCalculate(i, 2), realIntegralValue, 4);
+        printRow("Gauss for 3 roots", i -> integral.GaussCalculate(i, 3), realIntegralValue, 6);
     }
 
-    static void printRow(String name, Function<Integer, Double> method, double realValue) {
+    static void printRow(String name, Function<Integer, Double> method, double realValue, int accuracyOrder) {
         double resultN = method.apply(intervalsNumber);
         double result2N = method.apply(2 * intervalsNumber);
-        int accuracyOrder = 0;
+        double improved = NetsListCounting.increaseAccuracy(resultN, result2N, accuracyOrder);
         System.out.printf("%" + firstColumnWidth + "s | " +
                 "%" + (numberOutputAccuracy + 5) + "." + numberOutputAccuracy + "f | " +
                 "%" + (numberOutputAccuracy + 5) + "." + numberOutputAccuracy + "f | " +
                 "%" + (numberOutputAccuracy + 5) + "." + numberOutputAccuracy + "f | \n",
-                name, Math.abs(realValue - resultN), Math.abs(realValue - result2N), 0.0/*NetsListCounting.increaseAccuracy(resultN, result2N, accuracyOrder)*/);
+                name, Math.abs(realValue - resultN), Math.abs(realValue - result2N), Math.abs(realValue - improved));
     }
 }
