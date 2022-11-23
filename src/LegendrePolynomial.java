@@ -40,7 +40,7 @@ public class LegendrePolynomial {
             double prevRoot = Math.cos((Math.PI * (4 * i - 1))/(double)(4 * power + 2));
             this.roots[i - 1] = prevRoot -
                     this.calculate(prevRoot)/this.calculateDerivative(prevRoot);
-            while (Math.abs(prevRoot - this.roots[i - 1]) != 0/* > 1.0E-15*/) {
+            while (Math.abs(prevRoot - this.roots[i - 1]) /*!= 0*/ > 1.0E-15) {
                 prevRoot = this.roots[i - 1];
                 this.roots[i - 1] = prevRoot -
                         this.calculate(prevRoot)/this.calculateDerivative(prevRoot);
