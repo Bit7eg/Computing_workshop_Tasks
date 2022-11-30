@@ -1,43 +1,55 @@
 public class RootFounder {
-    private double[] a = new double[3]; //TODO: добавить массивы для границ?
+    private double[] a = new double[3];
     private double[] roots = new double[3];
-    private double eps; //TODO: подумать над итерациями и погрешностью
-    private int N;
-    private RootFounder(double a2, double a1, double a0, double eps, int N) {   //TODO: перенести вычисление границ в
-        this.a[0] = a0;                                                         //      конструктор или сделать
-        this.a[1] = a1;                                                         //      отдельную функцию для них
+    private double[] eps = new double[3];
+    private int[] N = new int[3];
+    private RootFounder(double a2, double a1, double a0) {
+        this.a[0] = a0;
+        this.a[1] = a1;
         this.a[2] = a2;
-        this.eps = eps;
-        this.N = N;
     }
 
-    private double dichotomyApproximate (double leftEnd, double rightEnd) {
-        while (rightEnd - leftEnd > eps) {
-            double x = (rightEnd + leftEnd)/2.0,
-                    middleY = x*x*x + a[2]*x*x + a[1]*x + a[0];
-            if (leftEnd * middleY > 0) leftEnd = middleY;
-            else rightEnd = middleY;
+    private void dichotomyApproximate (double leftEnd, double rightEnd, double eps, int N, int i) {
+        double lX = leftEnd, rX = rightEnd;
+
+        int j;
+        for (j = 0; (rX - lX > eps) && (j < N); j++) {
+            double mX = (rX + lX)/2.0;
+            if ((lX*lX*lX + a[2]*lX*lX + a[1]*lX + a[0]) * (mX*mX*mX + a[2]*mX*mX + a[1]*mX + a[0]) > 0)
+            {
+                lX = mX;
+            }
+            else rX = mX;
         }
-        return (rightEnd + leftEnd)/2.0;
+
+        this.eps[i] = (rX - lX)/2;
+        this.N[i] = j;
+        this.roots[i] = (rightEnd + leftEnd)/2.0;
     }
 
-    private double NewtonApproximate (double leftEnd, double rightEnd) {
+    private void NewtonApproximate (double leftEnd, double rightEnd, double eps, int N, int i) {
         double x = (rightEnd + leftEnd)/2.0;
         double lastX;
+
         if (6.0 * x + 2.0 * a[2] < 0) lastX = rightEnd;
         else lastX = leftEnd;
         x = lastX - (lastX*lastX*lastX + a[2]*lastX*lastX + a[1]*lastX + a[0])/
                 (3.0 * lastX*lastX + 2.0 * a[2]*lastX + a[1]);
-        while (Math.abs(x - lastX) < eps) {     //TODO: нормальное условие погрешности
+
+        int j;
+        for (j = 0; (Math.abs(x - lastX) > eps) && (j < N); j++) {     //TODO: нормальное условие погрешности
             lastX = x;
             x = lastX - (lastX*lastX*lastX + a[2]*lastX*lastX + a[1]*lastX + a[0])/
                     (3.0 * lastX*lastX + 2.0 * a[2]*lastX + a[1]);
         }
-        return x;
+
+        this.eps[i] = Math.abs(x - lastX);
+        this.N[i] = j;
+        this.roots[i] = x;
     }
 
     public static RootFounder dichotomyCalculate(double a2, double a1, double a0, double eps, int N) {
-        RootFounder founder = new RootFounder(a2, a1, a0, eps, N);
+        RootFounder founder = new RootFounder(a2, a1, a0);
 
         double[] l = new double[3], r = new double[3];
         double h = Math.sqrt(a2*a2 - 3.0*a1);
@@ -47,7 +59,7 @@ public class RootFounder {
         l[2] = r[1];
 
         h = -a2/3.0;
-        if (h*l[1] > 0) l[1] = h;
+        if ((l[1]*l[1]*l[1] + a2*l[1]*l[1] + a1*l[1] + a0) * (h*h*h + a2*h*h + a1*h + a0) > 0) l[1] = h;
         else r[1] = h;
 
         a2 = Math.abs(a2);
@@ -61,14 +73,14 @@ public class RootFounder {
         r[2] = l[2] + h;
 
         for (int i = 0; i < 3; i++) {
-            founder.roots[i] = founder.dichotomyApproximate(l[i], r[i]);
+            founder.dichotomyApproximate(l[i], r[i], eps, N, i);
         }
 
         return founder;
     }
 
     public static RootFounder NewtonCalculate(double a2, double a1, double a0, double eps, int N) {
-        RootFounder founder = new RootFounder(a2, a1, a0, eps, N);
+        RootFounder founder = new RootFounder(a2, a1, a0);
 
         double[] l = new double[3], r = new double[3];
         double h = Math.sqrt(a2*a2 - 3.0*a1);
@@ -78,7 +90,7 @@ public class RootFounder {
         l[2] = r[1];
 
         h = -a2/3.0;
-        if (h*l[1] > 0) l[1] = h;
+        if ((l[1]*l[1]*l[1] + a2*l[1]*l[1] + a1*l[1] + a0) * (h*h*h + a2*h*h + a1*h + a0) > 0) l[1] = h;
         else r[1] = h;
 
         a2 = Math.abs(a2);
@@ -92,7 +104,7 @@ public class RootFounder {
         r[2] = l[2] + h;
 
         for (int i = 0; i < 3; i++) {
-            founder.roots[i] = founder.NewtonApproximate(l[i], r[i]);
+            founder.NewtonApproximate(l[i], r[i], eps, N, i);
         }
 
         return founder;
@@ -100,5 +112,13 @@ public class RootFounder {
 
     public double[] getRoots() {
         return this.roots;
+    }
+
+    public double[] getEps() {
+        return eps;
+    }
+
+    public int[] getN() {
+        return N;
     }
 }
