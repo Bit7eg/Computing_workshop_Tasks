@@ -7,7 +7,7 @@ public class Task3 {
                 a1 = x2*x1 + x2*x0 + x1*x0,
                 a0 = -(x2*x1*x0);
 
-        printTable("Dichotomy", RootFounder.dichotomyCalculate(a2, a1, a0, eps, N));
+        //printTable("Dichotomy", RootFounder.dichotomyCalculate(a2, a1, a0, eps, N));
         printTable("Newton", RootFounder.NewtonCalculate(a2, a1, a0, eps, N));
     }
 
