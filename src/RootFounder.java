@@ -31,32 +31,38 @@ public class RootFounder {
         double x = (rightEnd + leftEnd)/2.0;
         double lastX;
 
-        if (6.0 * x + 2.0 * a[2] < 0) lastX = rightEnd;     //TODO: косяк с выбором начальной точки
-        else lastX = leftEnd;
+        if ((6.0 * x + 2.0 * a[2])*(3.0*x*x + 2.0*a[2]*x + a[1]) < 0) lastX = leftEnd;
+        else lastX = rightEnd;
         x = lastX - (lastX*lastX*lastX + a[2]*lastX*lastX + a[1]*lastX + a[0])/
                 (3.0 * lastX*lastX + 2.0 * a[2]*lastX + a[1]);
 
-        double lX = x - eps, rX = x + eps, m1;      //TODO: переделать m1 на минимум МОДУЛЯ производной
-        if (lX < -a[2]/3.0 && rX > -a[2]/3.0)
-            m1 = a[2]*a[2]/3.0 - 2.0*a[2]*a[2]/3.0 + a[1];
-        else if (6.0 * x + 2.0 * a[2] < 0) m1 = 3.0*rX*rX + 2.0*a[2]*rX + a[1];
-        else m1 = 3.0*lX*lX + 2.0*a[2]*lX + a[1];
+        double h = Math.sqrt(a[2]*a[2] - 3.0*a[1]),
+                dr1 = (-a[2] - h)/3.0,
+                dr2 = (-a[2] + h)/3.0;
+
+        double lX = x - eps, rX = x + eps, m1;
+        if (lX < dr1 && rX > dr1 || lX < dr2 && rX > dr2) m1 = 0;
+        else if (rX < dr1) m1 = 3.0*rX*rX + 2.0*a[2]*rX + a[1];
+        else if (lX > dr2) m1 = 3.0*lX*lX + 2.0*a[2]*lX + a[1];
+        else if (lX - dr1 < dr2 - rX) m1 = 3.0*lX*lX + 2.0*a[2]*lX + a[1];
+        else m1 = 3.0*rX*rX + 2.0*a[2]*rX + a[1];
 
         int j;
-        for (j = 0; (Math.abs(x*x*x + a[2]*x*x + a[1]*x + a[0]) < eps*m1) && (j < N); j++) {
+        for (j = 0; (Math.abs((x*x*x + a[2]*x*x + a[1]*x + a[0])/m1) > eps) && (j < N); j++) {
             lastX = x;
             x = lastX - (lastX*lastX*lastX + a[2]*lastX*lastX + a[1]*lastX + a[0])/
                     (3.0 * lastX*lastX + 2.0 * a[2]*lastX + a[1]);
 
             lX = x - eps;
             rX = x + eps;
-            if (lX < -a[2]/3.0 && rX > -a[2]/3.0)       //TODO: тут тоже минимум МОДУЛЯ
-                m1 = a[2]*a[2]/3.0 - 2.0*a[2]*a[2]/3.0 + a[1];
-            else if (6.0 * x + 2.0 * a[2] < 0) m1 = 3.0*rX*rX + 2.0*a[2]*rX + a[1];
-            else m1 = 3.0*lX*lX + 2.0*a[2]*lX + a[1];
+            if (lX < dr1 && rX > dr1 || lX < dr2 && rX > dr2) m1 = 0;
+            else if (rX < dr1) m1 = 3.0*rX*rX + 2.0*a[2]*rX + a[1];
+            else if (lX > dr2) m1 = 3.0*lX*lX + 2.0*a[2]*lX + a[1];
+            else if (lX - dr1 < dr2 - rX) m1 = 3.0*lX*lX + 2.0*a[2]*lX + a[1];
+            else m1 = 3.0*rX*rX + 2.0*a[2]*rX + a[1];
         }
 
-        this.eps[i] = Math.abs(x*x*x + a[2]*x*x + a[1]*x + a[0])/m1;
+        this.eps[i] = Math.abs((x*x*x + a[2]*x*x + a[1]*x + a[0])/m1);
         this.N[i] = j;
         this.roots[i] = x;
     }

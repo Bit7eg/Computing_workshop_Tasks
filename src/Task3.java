@@ -1,5 +1,5 @@
 public class Task3 {
-    static double x2 = -1.5, x1 = -2.5, x0 = 3, eps = 1.0E-10;
+    static double x2 = -150, x1 = 250, x0 = 250.5, eps = 1.0E-10;
     static int N = 50;
     static int stringLength = 20, rootAccuracy = 12;
     public static void main(String[] args){
@@ -7,7 +7,7 @@ public class Task3 {
                 a1 = x2*x1 + x2*x0 + x1*x0,
                 a0 = -(x2*x1*x0);
 
-        //printTable("Dichotomy", RootFounder.dichotomyCalculate(a2, a1, a0, eps, N));
+        printTable("Dichotomy", RootFounder.dichotomyCalculate(a2, a1, a0, eps, N));
         printTable("Newton", RootFounder.NewtonCalculate(a2, a1, a0, eps, N));
     }
 
