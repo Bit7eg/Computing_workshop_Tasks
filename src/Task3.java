@@ -1,6 +1,6 @@
 public class Task3 {
-    static double x2 = -150, x1 = 250, x0 = 250.5, eps = 1.0E-10;
-    static int N = 50;
+    static double x2 = -150, x1 = 250, x0 = 250.5, eps = 1.0E-5;
+    static int N = 20;
     static int stringLength = 20, rootAccuracy = 12;
     public static void main(String[] args){
         double a2 = -x2 - x1 - x0,

@@ -27,12 +27,12 @@ public class RootFounder {
         this.roots[i] = (rX + lX)/2.0;
     }
 
-    private void NewtonApproximate (double leftEnd, double rightEnd, double eps, int N, int i) {
-        double x = (rightEnd + leftEnd)/2.0;
+    private void NewtonApproximate (double lX, double rX, double eps, int N, int i) {
+        double x = (rX + lX)/2.0;
         double lastX;
 
-        if ((6.0 * x + 2.0 * a[2])*(3.0*x*x + 2.0*a[2]*x + a[1]) < 0) lastX = leftEnd;
-        else lastX = rightEnd;
+        if ((6.0 * x + 2.0 * a[2])*(3.0*x*x + 2.0*a[2]*x + a[1]) < 0) lastX = lX;
+        else lastX = rX;
         x = lastX - (lastX*lastX*lastX + a[2]*lastX*lastX + a[1]*lastX + a[0])/
                 (3.0 * lastX*lastX + 2.0 * a[2]*lastX + a[1]);
 
@@ -40,29 +40,26 @@ public class RootFounder {
                 dr1 = (-a[2] - h)/3.0,
                 dr2 = (-a[2] + h)/3.0;
 
-        double lX = x - eps, rX = x + eps, m1;
-        if (lX < dr1 && rX > dr1 || lX < dr2 && rX > dr2) m1 = 0;
-        else if (rX < dr1) m1 = 3.0*rX*rX + 2.0*a[2]*rX + a[1];
-        else if (lX > dr2) m1 = 3.0*lX*lX + 2.0*a[2]*lX + a[1];
-        else if (lX - dr1 < dr2 - rX) m1 = 3.0*lX*lX + 2.0*a[2]*lX + a[1];
-        else m1 = 3.0*rX*rX + 2.0*a[2]*rX + a[1];
+        double m1;
+        if (lX <= dr1 && rX >= dr1 || lX <= dr2 && rX >= dr2) m1 = 0;
+        else if (rX < dr1) m1 = Math.abs(3.0*rX*rX + 2.0*a[2]*rX + a[1]);
+        else if (lX > dr2) m1 = Math.abs(3.0*lX*lX + 2.0*a[2]*lX + a[1]);
+        else m1 = Math.min(
+                    Math.abs(3.0*lX*lX + 2.0*a[2]*lX + a[1]),
+                    Math.abs(3.0*rX*rX + 2.0*a[2]*rX + a[1])
+            );
 
         int j;
-        for (j = 0; (Math.abs((x*x*x + a[2]*x*x + a[1]*x + a[0])/m1) > eps) && (j < N); j++) {
+        for (j = 0; (Math.abs(x*x*x + a[2]*x*x + a[1]*x + a[0]) >= eps*m1) && (j < N); j++) {
             lastX = x;
             x = lastX - (lastX*lastX*lastX + a[2]*lastX*lastX + a[1]*lastX + a[0])/
                     (3.0 * lastX*lastX + 2.0 * a[2]*lastX + a[1]);
 
             lX = x - eps;
             rX = x + eps;
-            if (lX < dr1 && rX > dr1 || lX < dr2 && rX > dr2) m1 = 0;
-            else if (rX < dr1) m1 = 3.0*rX*rX + 2.0*a[2]*rX + a[1];
-            else if (lX > dr2) m1 = 3.0*lX*lX + 2.0*a[2]*lX + a[1];
-            else if (lX - dr1 < dr2 - rX) m1 = 3.0*lX*lX + 2.0*a[2]*lX + a[1];
-            else m1 = 3.0*rX*rX + 2.0*a[2]*rX + a[1];
         }
 
-        this.eps[i] = Math.abs((x*x*x + a[2]*x*x + a[1]*x + a[0])/m1);
+        this.eps[i] = Math.abs(x*x*x + a[2]*x*x + a[1]*x + a[0])/m1;
         this.N[i] = j;
         this.roots[i] = x;
     }
@@ -81,13 +78,7 @@ public class RootFounder {
         if ((l[1]*l[1]*l[1] + a2*l[1]*l[1] + a1*l[1] + a0) * (h*h*h + a2*h*h + a1*h + a0) > 0) l[1] = h;
         else r[1] = h;
 
-        a2 = Math.abs(a2);
-        a1 = -a1;
-
-        if (a2 < 2) a2 = 2;
-        if (a1 < 4) a1 = 4;
-
-        h = a2 * Math.sqrt(a1);
+        h = a2 * a2 - 3.0 * a1;
         l[0] = r[0] - h;
         r[2] = l[2] + h;
 
@@ -112,13 +103,7 @@ public class RootFounder {
         if ((l[1]*l[1]*l[1] + a2*l[1]*l[1] + a1*l[1] + a0) * (h*h*h + a2*h*h + a1*h + a0) > 0) l[1] = h;
         else r[1] = h;
 
-        a2 = Math.abs(a2);      //TODO: уменьшить интервалы с корнем
-        a1 = -a1;
-
-        if (a2 < 2) a2 = 2;
-        if (a1 < 4) a1 = 4;
-
-        h = a2 * Math.sqrt(a1);
+        h = a2 * a2 - 3.0 * a1;
         l[0] = r[0] - h;
         r[2] = l[2] + h;
 
